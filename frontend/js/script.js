@@ -1,0 +1,1 @@
+console.log("GabaritAI iniciado com sucesso!");
