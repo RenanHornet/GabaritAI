@@ -28,3 +28,9 @@ create table questao (
 		foreign key (prova_id)
         references prova(id_prova)
 );
+
+insert into prova (titulo, descricao, data_aplicacao, professor_id) 
+values ("prova semestral", "prova avaliativa de final de semestre", 2025-11-30, 1);
+
+insert into professor (nome, email, senha) 
+values ("Roberval", "roberval@email.com", "123456");
