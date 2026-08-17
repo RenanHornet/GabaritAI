@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,17 +14,18 @@
             <form id="cadastroProvaForm">
                 <div class="mb-3">
                     <label for="nome" class="form-label">Nome da Prova</label>
-                    <input type="text" class="form-control" id="nome" placeholder="Digite o nome da prova" required>
+                    <input type="text" class="form-control" id="nome" placeholder="Digite o nome da prova">
                 </div>
                 <div class="mb-3">
                     <label for="descricao" class="form-label">Descrição</label>
-                    <textarea class="form-control" id="descricao" rows="3" placeholder="Digite a descrição da prova" required></textarea>
+                    <textarea class="form-control" id="descricao" rows="3" placeholder="Digite a descrição da prova"></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="data" class="form-label">Data da Prova</label>
-                    <input type="date" class="form-control" id="data" required>
+                    <input type="date" class="form-control" id="data" >
                 </div>
-                      <button type="submit" class="btn btn-primary">Cadastrar Prova</button>
+                <div id="mensagemAlerta" class="mb-3"></div>
+                <button type="submit" class="btn btn-primary">Cadastrar Prova</button>
             </form>
             <p id="resultadoCadastro"></p>
         </div>

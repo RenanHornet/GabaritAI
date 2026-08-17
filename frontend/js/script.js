@@ -20,12 +20,39 @@ async function testarAPI() {
 }
 
 document.getElementById('cadastroProvaForm').addEventListener('submit', async (event) => {
-    //Evita o recarregamento automático da página ao enviar o formulário
     event.preventDefault();
-
+    const alertaElement = document.getElementById('mensagemAlerta');
     const resultadoElement = document.getElementById('resultadoCadastro');
 
-    //Coleta os valores digitados nos inputs da tela
+    //Captura os valores digitados
+    const nomeInput = document.getElementById('nome').value.trim();
+    const descricaoInput = document.getElementById('descricao').value.trim();
+    const dataInput = document.getElementById('data').value.trim();
+    
+    //validação se o nome estiver vazio
+    if (nomeInput === "") {
+        alertaElement.innerHTML = `
+            <div class="alert alert-warning py-2" role="alert">
+                ⚠️ Informe o nome da prova.
+            </div>
+        `
+        return; //interrompe a execução! Não envia o fetch para o backend.
+    }
+
+    //Validação se a data estiver vazia
+    if (dataInput === "") {
+        alertaElement.innerHTML = `
+            <div class="alert alert-warning py-2" role="alert">
+                ⚠️ Selecione a data de aplicação da prova.
+            </div>
+        `;
+        return; // Interrompe a execução!
+    }
+
+    //limpa os alertas anteriores caso passe na validação
+    alertaElement.innerHTML = '';
+
+    // Se passou na validação, monta o objeto e faz a requisção normalmente
     const novaProva = {
         titulo: document.getElementById('nome').value,
         descricao: document.getElementById('descricao').value,
