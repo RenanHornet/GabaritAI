@@ -32,3 +32,13 @@ def atualizar_prova(id_prova: int, prova: ProvaCreate, db: Session = Depends(get
     db.commit()
     db.refresh(prova_existente)
     return prova_existente
+
+@router.delete("/provas/{id_prova}")
+def deletar_prova(id_prova: int, db: Session = Depends(get_db)):
+    prova_existente = db.query(Prova).filter(Prova.id_prova == id_prova).first()
+    if not prova_existente:
+        raise HTTPException(status_code=404, detail="Prova não encontrada")
+
+    db.delete(prova_existente)
+    db.commit()
+    return {"mensagem": "Prova deletada com sucesso"}
