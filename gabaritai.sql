@@ -1,4 +1,8 @@
-create database gabaritai;
+create database if not exists gabaritai;
+use gabaritai;
+show tables;
+describe prova;
+
 
 create table professor (
 	id_cadastro int(10) auto_increment primary key, 
@@ -18,6 +22,8 @@ create table prova (
 		foreign key(professor_id)
         references professor(id_cadastro)
 );
+
+select * from prova;
 
 create table questao (
 	id_questao int auto_increment primary key, 
