@@ -5,4 +5,10 @@ class ProvaResponse(BaseModel):
     titulo: str
     descricao: str | None = None
     data_aplicacao: str | None = None
-    quantidade_questoes: int 
+    professor_id: int
+    
+class ProvaCreate(BaseModel):
+    titulo:str
+    descricao: str | None = None
+    data_aplicacao: str | None = None
+    professor_id: int
