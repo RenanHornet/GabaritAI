@@ -1,7 +1,7 @@
 create database if not exists gabaritai;
 use gabaritai;
 show tables;
-describe prova;
+describe questao;
 
 
 create table professor (
@@ -33,3 +33,5 @@ create table questao (
     constraint fk_questao_professor foreign key (professor_id) references professor (id_cadastro),
     constraint uq_questao_prova_numero unique (prova_id, numero_questao)
 );
+
+drop table questao;
