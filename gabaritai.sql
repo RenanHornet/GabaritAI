@@ -23,20 +23,13 @@ create table prova (
         references professor(id_cadastro)
 );
 
-select * from prova;
-
 create table questao (
-	id_questao int auto_increment primary key, 
-    prova_id int not null, 
-    numero int not null, 
+	id_questao int auto_increment key, 
+    numero_questao int not null,
     alternativa_correta char(1) not null,
-    constraint fk_questao_prova
-		foreign key (prova_id)
-        references prova(id_prova)
+    prova_id int not null, 
+    professor_id int not null, 
+    constraint fk_questao_prova foreign key (prova_id) references prova(id_prova),
+    constraint fk_questao_professor foreign key (professor_id) references professor (id_cadastro),
+    constraint uq_questao_prova_numero unique (prova_id, numero_questao)
 );
-
-insert into prova (titulo, descricao, data_aplicacao, professor_id) 
-values ("prova semestral", "prova avaliativa de final de semestre", 2025-11-30, 1);
-
-insert into professor (nome, email, senha) 
-values ("Roberval", "roberval@email.com", "123456");
