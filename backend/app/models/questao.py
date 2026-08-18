@@ -9,7 +9,16 @@ class Questao(Base):
         primary_key=True, 
         autoincrement=True
     )
-    numero = Column(Integer, nullable=False)
+    numero_questao = Column(Integer, nullable=False)
     alternativa_correta = Column(String(1), nullable=False)
-    prova_id = Column(Integer, ForeignKey("prova.id_prova"), nullable=False)
+    prova_id = Column(
+        Integer, 
+        ForeignKey("prova.id_prova"), 
+        nullable=False
+    )
+    professor_id = Column(
+        Integer, 
+        ForeignKey("professor.id_cadastro"), 
+        nullable=False
+)
     
