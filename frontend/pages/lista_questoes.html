@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questões</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="container mt-5 bg-info p-5 rounded">
+        <h1 class="text-center mb-4">Questões da Prova</h1>
+        <!-- Seleção da prova -->
+        <div class="container mt-5">
+            <h2 class="text-center mb-4">Selecione a prova</h2>
+            <form id="seletorProvaForm">
+                <div class="mb-3">
+                    <label for="provaSelect" class="form-label">
+                        Prova
+                    </label>
+                    <select class="form-select" id="provaSelect">
+                        <option value="">Selecione uma prova</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Selecionar Prova
+                </button>
+            </form>
+        </div>
+        <!-- Tabela de questões -->
+        <div class="container mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Questões</h2>
+                <button type="button" class="btn btn-success">
+                    + Nova questão
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover bg-white rounded">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nº</th>
+                            <th>Alternativa correta</th>
+                            <th>Professor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaQuestoesBody">
+                        <!-- Questões serão inseridas pelo JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-primary text-center text-white mt-5 p-3">
+        <p>versão mvp 0.1</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/questoes.js"></script>
+</body>
+
+</html>
