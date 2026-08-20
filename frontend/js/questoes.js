@@ -75,6 +75,54 @@ async function listarQuestoesPorProva(idProva) {
         `;
     }
 }
+
+//cadastra uma questão na prova selecionada (POST /questoes)
+document
+    .getElementById("cadastroQuestaoForm")
+    .addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const provaSelect = document.getElementById("provaSelect");
+        const numeroQuestao = Number(document.getElementById("numeroQuestao").value);
+        const alternativaCorreta = document.getElementById("alternativaCorreta").value;
+        const provaId = Number(provaSelect.value);
+        
+        if (!provaId) {
+            alert("Selecione uma prova antes de cadastrar a questão.");
+            return;
+        }
+
+        const novaQuestao = {
+            numero_questao: numeroQuestao,
+            alternativa_correta: alternativaCorreta,
+            prova_id: provaId,
+            professor_id: 1
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/questoes`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(novaQuestao)
+            });
+
+            if (!response.ok) {
+                const erro = await response.json().catch(() => ({}));
+                throw new Error(erro.detail || "Erro ao cadastrar questão");
+            }
+
+            document.getElementById("cadastroQuestaoForm").reset();
+            alert("Questão cadastrada com sucesso.");
+            listarQuestoesPorProva(provaId);
+        } catch (error) {
+            console.error("Erro ao cadastrar questão:", error);
+            alert(error.message || "Erro de conexão com o servidor.");
+        }
+    });
+
+
 //seleçao da prova
 document
     .getElementById("seletorProvaForm")
