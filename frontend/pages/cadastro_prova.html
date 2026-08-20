@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de provas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="container mt-5 bg-info p-5 rounded">
+    <div class="container mt-2">
+        <h1 class="text-center mb-4">Cadastro de Provas</h1>
+        <form id="cadastroProvaForm">
+            <div class="mb-3">
+                <label for="nome" class="form-label fw-bold">Nome da Prova</label>
+                <input type="text" class="form-control" id="nome" placeholder="Digite o nome da prova">
+            </div>
+            <div class="mb-3">
+                <label for="descricao" class="form-label fw-bold">Descrição</label>
+                <textarea class="form-control" id="descricao" rows="3" placeholder="Digite a descrição da prova"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="data" class="form-label fw-bold">Data da Prova</label>
+                <input type="date" class="form-control" id="data">
+            </div>
+            <div id="mensagemAlerta" class="mb-3"></div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold">Cadastrar Prova</button>
+        </form>
+    </div>
+
+    <!-- TABELA DE PROVAS -->
+    <div class="mt-5">
+        <h3 class="text-center mb-3">Provas Cadastradas</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white rounded shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Descrição</th>
+                        <th>Data de Aplicação</th>
+                        <th>ID Professor</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProvasBody">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PAINEL DE QUESTÕES DA PROVA SELECIONADA -->
+    <div id="painelQuestoes" class="mt-5 bg-white p-4 rounded shadow d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="m-0" id="tituloProvaSelecionada">Questões da Prova</h3>
+            <button class="btn btn-sm btn-secondary" onclick="fecharPainelQuestoes()">Fechar ✖</button>
+        </div>
+
+        <!-- FORMULÁRIO DE CADASTRO DE QUESTÃO -->
+        <div class="card mb-4 bg-light">
+            <div class="card-body">
+                <h5 class="card-title mb-3">➕ Adicionar Questão ao Gabarito</h5>
+                <form id="cadastroQuestaoForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="numeroQuestao" class="form-label fw-bold">Nº Questão</label>
+                        <input type="number" class="form-control" id="numeroQuestao" placeholder="Ex: 1" min="1" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="alternativaCorreta" class="form-label fw-bold">Alternativa Correta</label>
+                        <select class="form-select" id="alternativaCorreta" required>
+                            <option value="">Selecione...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">Salvar Questão</button>
+                    </div>
+                </form>
+                <div id="alertaQuestao" class="mt-2"></div>
+            </div>
+        </div>
+
+            <!-- TABELA DE QUESTÕES DA PROVA -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm text-center">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Nº Questão</th>
+                            <th>Gabarito Oficial</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaQuestoesBody">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-primary text-center text-white mt-5 p-3">
+        <p>versão mvp 0.1</p>
+    </footer> 
+       
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/provas.js"></script>
+</body>
+</html>

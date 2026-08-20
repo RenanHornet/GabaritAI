@@ -18,3 +18,4 @@ async function testarAPI() {
         document.getElementById('resultadoAPI').innerText = '🔴 Servidor Offline';
     }
 }
+
