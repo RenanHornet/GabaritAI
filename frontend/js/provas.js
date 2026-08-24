@@ -1,124 +1,51 @@
-// cadastro de provas (POST /provas)
-document.getElementById('cadastroProvaForm').addEventListener('submit', async (event) => {
+
+//método POST para cadastrar um novo aluno
+const API_URL = 'http://127.0.0.1:8000';
+
+document.getElementById('cadastroAlunoForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+
     const alertaElement = document.getElementById('mensagemAlerta');
-    const resultadoElement = document.getElementById('resultadoCadastro');
     const nomeInput = document.getElementById('nome').value.trim();
-    const descricaoInput = document.getElementById('descricao').value.trim();
-    const dataInput = document.getElementById('data').value.trim();
-    
-    if (nomeInput === "") {
-        alertaElement.innerHTML = `
-            <div class="alert alert-warning py-2" role="alert">
-                ⚠️ Informe o nome da prova.
-            </div>
-        `;
+    const turmaInput = document.getElementById('turma').value.trim();
+
+    if (!nomeInput || !turmaInput) {
+        alertaElement.innerHTML = `<div class="alert alert-warning py-2">⚠️ Preencha todos os campos.</div>`;
         return;
     }
 
-    if (dataInput === "") {
-        alertaElement.innerHTML = `
-            <div class="alert alert-warning py-2" role="alert">
-                ⚠️ Selecione a data de aplicação da prova.
-            </div>
-        `;
-        return;
-    }
-
-    alertaElement.innerHTML = '';
-
-    const novaProva = {
-        titulo: nomeInput,
-        descricao: descricaoInput,
-        data_aplicacao: dataInput,
-        professor_id: 1
+    const novoAluno = {
+        nome_aluno: nomeInput,
+        turma: parseInt(turmaInput, 10) // Converte o texto para número inteiro
     };
 
-    console.log("Enviando prova:", novaProva);
+    // Valida se o valor digitado na turma é realmente um número válido
+    if (isNaN(novoAluno.turma)) {
+        alertaElement.innerHTML = `<div class="alert alert-warning py-2">⚠️ A turma deve ser um número inteiro (Ex: 3, 301, 8).</div>`;
+        return;
+    }
 
     try {
-        const response = await fetch(`${API_URL}/provas`, {
+        const response = await fetch(`${API_URL}/alunos`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(novaProva)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novoAluno)
         });
 
         if (response.ok) {
-
-            const data = await response.json();
-
-            console.log("Resposta da API:", data);
-
-            resultadoElement.innerText = '🟢 Prova cadastrada com sucesso!';
-            resultadoElement.className = 'mt-3 text-success fw-bold';
-
-            document.getElementById('cadastroProvaForm').reset();
+            alertaElement.innerHTML = `<div class="alert alert-success py-2">🟢 Aluno cadastrado com sucesso!</div>`;
+            document.getElementById('cadastroAlunoForm').reset();
+            
+            if (typeof carregarAlunos === 'function') {
+                carregarAlunos();
+            }
         } else {
-
-            resultadoElement.innerText = '🔴 Erro ao cadastrar prova.';
-            resultadoElement.className = 'mt-3 text-danger fw-bold';
+            const erroData = await response.json();
+            console.error('Erro de validação 422:', erroData);
+            alertaElement.innerHTML = `<div class="alert alert-danger py-2">🔴 Erro de validação nos dados enviados.</div>`;
         }
-
     } catch (error) {
-
-        console.error('Erro na requisição:', error);
-
-        resultadoElement.innerText = '🔴 Erro de conexão com o servidor.';
-        resultadoElement.className = 'mt-3 text-danger fw-bold';
+        console.error('Erro de conexão:', error);
+        alertaElement.innerHTML = `<div class="alert alert-danger py-2">🔴 Servidor indisponível.</div>`;
     }
 });
-
-//listagem de provas (GET /provas)
-async function carregarProvas() {
-    const tabelaBody = document.getElementById('tabelaProvasBody');
-
-    try {
-        const response = await fetch(`${API_URL}/provas`);
-
-        if (!response.ok) {
-            throw new Error('Falha ao carregar a lista de provas');
-        }
-
-        const provas = await response.json();
-
-        tabelaBody.innerHTML = '';
-
-        if (provas.length === 0) {
-            tabelaBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        Nenhuma prova cadastrada ainda.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        provas.forEach(prova => {
-            const linha = document.createElement('tr');
-            linha.innerHTML = `
-                <td>${prova.id_prova}</td>
-                <td>${prova.titulo}</td>
-                <td>${prova.descricao || '-'}</td>
-                <td>${prova.data_aplicacao || '-'}</td>
-                <td>${prova.professor_id}</td>
-            `;
-
-            tabelaBody.appendChild(linha);
-        });
-
-    } catch (error) {
-        console.error('Erro ao buscar provas:', error);
-        tabelaBody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center text-danger fw-bold">
-                    Erro ao carregar dados do servidor.
-                </td>
-            </tr>
-        `;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', carregarProvas);
