@@ -24,7 +24,7 @@ create table prova (
 );
 
 create table questao (
-	id_questao int auto_increment key, 
+	id_questao int auto_increment primary key, 
     numero_questao int not null,
     alternativa_correta char(1) not null,
     prova_id int not null, 
@@ -32,6 +32,12 @@ create table questao (
     constraint fk_questao_prova foreign key (prova_id) references prova(id_prova),
     constraint fk_questao_professor foreign key (professor_id) references professor (id_cadastro),
     constraint uq_questao_prova_numero unique (prova_id, numero_questao)
+);
+
+create table aluno (
+	id_aluno int auto_increment primary key, 
+    nome_aluno varchar(100) not null, 
+    turma int(2)  not null
 );
 
 drop table questao;
