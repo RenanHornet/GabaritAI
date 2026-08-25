@@ -40,4 +40,12 @@ create table aluno (
     turma int(2)  not null
 );
 
-drop table questao;
+create table prova_aluno(
+	id_prova_aluno int auto_increment primary key,
+    aluno_id int not null,
+    prova_id int not null,
+    constraint fk_aluno foreign key (aluno_id) references aluno (id_aluno),
+    constraint fk_prova foreign key(prova_id) references prova(id_prova),
+    constraint uq_aluno_prova unique (aluno_id, prova_id)
+);
+
