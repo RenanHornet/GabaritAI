@@ -10,6 +10,12 @@ def listar_alunos(db: Session = Depends(get_db)):
     alunos = db.query(Aluno).all()
     return alunos
 
+@router.get("/alunos/{turma}", response_model=list[AlunoResponse])
+def listar_alunos_por_turma(
+    turma: int,
+    db: Session = Depends(get_db)
+):
+    return db.query(Aluno).filter(Aluno.turma == turma).all()
 @router.post("/alunos", response_model=AlunoResponse)
 def criar_aluno(aluno: AlunoCreate, db: Session = Depends(get_db)):
     novo_aluno = Aluno(**aluno.model_dump())

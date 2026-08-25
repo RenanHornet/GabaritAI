@@ -56,6 +56,65 @@ async function carregarAlunos() {
     };
 }
 
+//carregar alunos por turma
+async function carregarAlunosPorTurma(turma) {
+    const tabelaBody = document.getElementById('tabelaAlunosBody');
+
+    try {
+        // Correção no template string: adicionado o $ antes de {API_URL}
+        const response = await fetch(`${API_URL}/alunos/${turma}`);
+        
+        if (!response.ok) throw new Error('Erro ao listar alunos por turma');
+
+        const alunos = await response.json();
+        tabelaBody.innerHTML = '';
+
+        if (alunos.length === 0) {
+            tabelaBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Nenhum aluno encontrado para a turma ${turma}.</td></tr>`;
+            return;
+        }
+
+        // Renderiza cada aluno retornado do banco
+        alunos.forEach(aluno => {
+            const linha = document.createElement('tr');
+            linha.innerHTML = `
+                <td>${aluno.id_aluno}</td>
+                <td class="fw-bold">${aluno.nome_aluno}</td>
+                <td><span class="badge bg-secondary fs-6">Turma ${aluno.turma}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-danger fw-bold" onclick="deletarAluno(${aluno.id_aluno})">
+                        🗑️ Excluir
+                    </button>
+                </td>
+            `;
+            tabelaBody.appendChild(linha);
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar alunos por turma:', error);
+        tabelaBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Erro ao carregar dados dos alunos.</td></tr>`;
+    }
+}
+
+//botão pesquisar
+document.getElementById('btnPesquisar').addEventListener('click', () => {
+    const turmaInput = document.getElementById('pesquisa').value.trim();
+    
+    if (!turmaInput) {
+        alert('Por favor, digite o número da turma para buscar.');
+        return;
+    }
+
+    const turmaNumero = parseInt(turmaInput, 10);
+    carregarAlunosPorTurma(turmaNumero);
+});
+
+//botao ver todos 
+document.getElementById('btnLimparPesquisa').addEventListener('click', () => {
+    document.getElementById('pesquisa').value = '';
+    carregarAlunos(); // Volta a exibir todos os alunos
+});
+
 //método POST para cadastrar um novo aluno
 document.getElementById('cadastroAlunoForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -69,15 +128,17 @@ document.getElementById('cadastroAlunoForm').addEventListener('submit', async (e
         return;
     }
 
-    const novoAluno = {
-        nome_aluno: nomeInput,
-        turma: parseInt(turmaInput, 10) 
-    };
+    const turmaNumero = parseInt(turmaInput, 10);
 
-    if (isNaN(novoAluno.turma)) {
-        alertaElement.innerHTML = `<div class="alert alert-warning py-2">⚠️ A turma deve ser um número inteiro (Ex: 3, 301, 8).</div>`;
+    if (isNaN(turmaNumero)) {
+        alertaElement.innerHTML = `<div class="alert alert-warning py-2">⚠️ A turma deve ser um número válido.</div>`;
         return;
     }
+
+    const novoAluno = {
+        nome_aluno: nomeInput,
+        turma: turmaNumero 
+    };
 
     try {
         const response = await fetch(`${API_URL}/alunos`, {
