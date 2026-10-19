@@ -20,5 +20,5 @@ class Questao(Base):
         Integer, 
         ForeignKey("professor.id_cadastro"), 
         nullable=False
-)
+    )
     

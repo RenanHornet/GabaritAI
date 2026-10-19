@@ -4,6 +4,8 @@ from app.routes.provas import router as provas
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.questoes import router as questoes
 from app.routes.alunos import router as alunos
+from app.routes.provas_alunos import router as provas_alunos
+from app.routes.respostas import router as respostas
 
 app = FastAPI(
     title="GabaritAI API",
@@ -27,3 +29,7 @@ app.include_router(provas)
 app.include_router(questoes)
 
 app.include_router(alunos)
+
+app.include_router(respostas)
+
+app.include_router(provas_alunos)
