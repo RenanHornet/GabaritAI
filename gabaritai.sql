@@ -49,3 +49,18 @@ create table prova_aluno(
     constraint uq_aluno_prova unique (aluno_id, prova_id)
 );
 
+create table resposta (
+    id_resposta int auto_increment primary key,
+    prova_aluno_id int not null, 
+    questao_id int not null, 
+    alternativa_marcada char(1) not null,
+
+    constaint fk_resposta_prova_aluno foreign key (prova_aluno_id) references prova_aluno(id_prova_aluno),
+
+    constraint fk_resposta_questao foreign key (questao_id) references questao(id_questao),
+
+    constraint uq_resposta_prova_aluno_questao unique (prova_aluno_id, questao_id),
+
+    constraint chk_alternativa_marcada check (alternativa_marcada in ('A', 'B', 'C', 'D', 'E'))
+);
+
