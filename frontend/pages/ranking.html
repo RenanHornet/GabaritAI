@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking de Alunos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="container mt-5 bg-info p-5 rounded">
+        <div class="container mt-2">
+            <h1 class="text-center mb-4">Ranking de Alunos</h1>
+        </div>
+
+        <div class="mb-3">
+            <label for="provaSelect" class="form-label fw-bold">
+                Selecione a Prova
+            </label>
+            <select id="provaSelect" class="form-select" required>
+                <option value="">Selecione uma prova</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="turmaSelect" class="form-label fw-bold">
+                Selecione a Turma
+            </label>
+            <select id="turmaSelect" class="form-select" disabled required>
+                <option value="">Selecione uma prova primeiro</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <button type="button" id="btnConsultarRanking"
+                class="btn btn-primary fw-bold" disabled>
+                Consultar Ranking
+            </button>
+
+            <button type="button" id="btnLimparRanking"
+                class="btn btn-secondary ms-2 fw-bold">
+                Limpar
+            </button>
+        </div>
+
+        <div id="mensagemAlerta" class="mb-3" role="status"></div>
+
+        <section class="mt-5">
+            <h3 class="text-center mb-3">Classificação</h3>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover bg-white rounded shadow-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Posição</th>
+                            <th>Aluno</th>
+                            <th>Turma</th>
+                            <th>Acertos</th>
+                            <th>Erros</th>
+                            <th>Total de Questões</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaRankingBody">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                Selecione uma prova e uma turma para consultar o ranking.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-primary text-center text-white mt-5 p-3">
+        <p>versão mvp 0.1</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/ranking.js"></script>
+</body>
+</html>
