@@ -5,3 +5,5 @@ melhorias futuras...
 - inserção do aluno direto pelo cartão resposta e não por uma página a parte (nome do aluno e turma).
 
 - adicionar filro para ver somente os 10 primeiros, e não a turma toda. 
+
+- lista_questoes faz uma tarefa que o cadastro_prova faz tmb, depois excluir
