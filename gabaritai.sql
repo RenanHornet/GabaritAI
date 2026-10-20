@@ -12,6 +12,8 @@ create table professor (
     
 );
 
+select * from prova;
+
 create table prova (
 	id_prova int(10) auto_increment primary key,
     titulo varchar(100) not null,
@@ -49,6 +51,9 @@ create table prova_aluno(
     constraint uq_aluno_prova unique (aluno_id, prova_id)
 );
 
+alter table prova_aluno
+add column corrigida boolean not null default false;
+
 create table resposta (
     id_resposta int auto_increment primary key,
     prova_aluno_id int not null, 
@@ -64,3 +69,4 @@ create table resposta (
     constraint chk_alternativa_marcada check (alternativa_marcada in ('A', 'B', 'C', 'D', 'E'))
 );
 
+select * from prova_aluno;
