@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <main class="container py-4">
+    <main class="container py-4 bg-info p-5 rounded">
         <header class="mb-4">
             <h1>Cartão-resposta</h1>
             <p class="text-muted">
@@ -32,12 +32,21 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="turmaSelect" class="form-label">
+                        Turma
+                    </label>
+                    <select id="turmaSelect" class="form-select" required>
+                        <option value="">Selecione uma turma</option>
+                    </select>
+                </div>
+
                 <div class="col-md-6">
                     <label for="alunoSelect" class="form-label">
                         Aluno
                     </label>
                     <select id="alunoSelect" class="form-select" required>
-                        <option value="">Selecione um aluno</option>
+                        <option value="">Selecione primeiro uma turma</option>
                     </select>
                 </div>
             </div>

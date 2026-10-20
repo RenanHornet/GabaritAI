@@ -2,6 +2,7 @@
 const API_URL = "http://127.0.0.1:8000";
 
 const provaSelect = document.getElementById("provaSelect");
+const turmaSelect = document.getElementById("turmaSelect")
 const alunoSelect = document.getElementById("alunoSelect");
 const listaQuestoes = document.getElementById("listaQuestoes");
 const formRespostas = document.getElementById("formRespostas");
@@ -36,13 +37,10 @@ async function requisitar(url, opcoes = {}) {
     return dados;
 }
 
-// Carrega as provas e os alunos cadastrados.
+// Carrega  as turmas e  os alunos cadastrados.
 async function carregarDadosIniciais() {
-    try {
-        const [provas, alunos] = await Promise.all([
-            requisitar("/provas"),
-            requisitar("/alunos")
-        ]);
+    try{
+        const provas = await requisitar("/provas");
 
         provas.forEach((prova) => {
             const option = document.createElement("option");
@@ -50,19 +48,76 @@ async function carregarDadosIniciais() {
             option.textContent = prova.titulo;
             provaSelect.appendChild(option);
         });
+        exibirMensagem("Provas carregadas. Selecione a turma e o aluno.", "success");
+    } catch (erro){
+        exibirMensagem(`Não foi possível carregar as provas: $(erro.message)`
 
-        alunos.forEach((aluno) => {
-            const option = document.createElement("option");
-            option.value = aluno.id_aluno;
-            option.textContent = aluno.nome_aluno;
-            alunoSelect.appendChild(option);
+        );
+    }
+}
+
+// Carrega as turmas disponíveis a partir dos alunos cadastrados.
+async function carregarTurmas() {
+    try {
+        const alunos = await requisitar("/alunos");
+        const turmas = [...new Set(alunos.map(aluno => aluno.turma))]
+            .filter(turma => turma !== null && turma !== undefined)
+            .sort((a, b) => a - b);
+
+        turmaSelect.replaceChildren(
+            new Option("Selecione uma turma", "")
+        );
+
+        turmas.forEach(turma => {
+            turmaSelect.add(new Option(`Turma ${turma}`, turma));
+        });
+    } catch (erro) {
+        exibirMensagem(`Não foi possível carregar as turmas: ${erro.message}`);
+    }
+}
+
+// Carrega somente os alunos da turma selecionada.
+async function carregarAlunosPorTurma() {
+    alunoSelect.replaceChildren(
+        new Option("Carregando alunos...", "")
+    );
+    alunoSelect.disabled = true;
+
+    if (!turmaSelect.value) {
+        alunoSelect.replaceChildren(
+            new Option("Selecione primeiro uma turma", "")
+        );
+        return;
+    }
+
+    try {
+        // Ajustaremos esta URL conforme a rota real do backend.
+        const alunos = await requisitar(
+            `/alunos/${turmaSelect.value}`
+        );
+
+        alunoSelect.replaceChildren(
+            new Option("Selecione um aluno", "")
+        );
+
+        alunos.forEach(aluno => {
+            alunoSelect.add(
+                new Option(aluno.nome_aluno, aluno.id_aluno)
+            );
         });
 
-        exibirMensagem("Provas e alunos carregados.", "success");
+        alunoSelect.disabled = false;
+
+        if (alunos.length === 0) {
+            alunoSelect.replaceChildren(
+                new Option("Nenhum aluno nesta turma", "")
+            );
+        }
     } catch (erro) {
-        exibirMensagem(
-            `Não foi possível carregar provas e alunos: ${erro.message}`
+        alunoSelect.replaceChildren(
+            new Option("Erro ao carregar alunos", "")
         );
+        exibirMensagem(`Não foi possível carregar os alunos: ${erro.message}`);
     }
 }
 
@@ -251,5 +306,7 @@ formRespostas.addEventListener("submit", async (event) => {
 // Atualiza as questões quando a prova muda.
 provaSelect.addEventListener("change", carregarQuestoes);
 
-// Inicializa o formulário.
+turmaSelect.addEventListener("change", carregarAlunosPorTurma);
+
 carregarDadosIniciais();
+carregarTurmas();
