@@ -55,7 +55,7 @@ create table resposta (
     questao_id int not null, 
     alternativa_marcada char(1) not null,
 
-    constaint fk_resposta_prova_aluno foreign key (prova_aluno_id) references prova_aluno(id_prova_aluno),
+    constraint fk_resposta_prova_aluno foreign key (prova_aluno_id) references prova_aluno(id_prova_aluno),
 
     constraint fk_resposta_questao foreign key (questao_id) references questao(id_questao),
 
