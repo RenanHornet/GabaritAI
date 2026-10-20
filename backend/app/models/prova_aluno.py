@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, Boolean
 from app.database.base import Base
 
 class ProvaAluno(Base):
@@ -19,4 +19,10 @@ class ProvaAluno(Base):
         Integer, 
         ForeignKey("prova.id_prova"), 
         nullable=False
+    )
+    
+    corrigida = Column(
+        Boolean,
+        nullable=False,
+        default=False
     )

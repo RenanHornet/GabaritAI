@@ -7,6 +7,7 @@ from app.routes.alunos import router as alunos
 from app.routes.provas_alunos import router as provas_alunos
 from app.routes.respostas import router as respostas
 from app.routes.correcao import router as correcao
+from app.routes.ranking import router as ranking
 
 app = FastAPI(
     title="GabaritAI API",
@@ -36,3 +37,6 @@ app.include_router(respostas)
 app.include_router(provas_alunos)
 
 app.include_router(correcao)
+
+app.include_router(ranking)
+

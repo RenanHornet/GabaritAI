@@ -69,9 +69,13 @@ def corrigir_prova(
         else:
             erros += 1
     
+    #Marca a participação como corrigida.
+    participacao.corrigida = True
+    db.commit()
+    
     return {
-    "prova_aluno_id": prova_aluno_id,
-    "total_questoes": len(questoes),
-    "acertos": acertos,
-    "erros": erros
+        "prova_aluno_id": prova_aluno_id,
+        "total_questoes": len(questoes),
+        "acertos": acertos,
+        "erros": erros
     }
