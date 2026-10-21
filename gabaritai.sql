@@ -12,6 +12,9 @@ create table professor (
     
 );
 
+insert into professor (nome, email, senha) values ('teste', 'testw@teste', 1234);
+select * from professor;
+
 create table prova (
 	id_prova int(10) auto_increment primary key,
     titulo varchar(100) not null,
@@ -24,7 +27,7 @@ create table prova (
 );
 
 create table questao (
-	id_questao int auto_increment key, 
+	id_questao int auto_increment primary key, 
     numero_questao int not null,
     alternativa_correta char(1) not null,
     prova_id int not null, 
@@ -34,4 +37,57 @@ create table questao (
     constraint uq_questao_prova_numero unique (prova_id, numero_questao)
 );
 
-drop table questao;
+select * from questao;
+
+create table aluno (
+	id_aluno int auto_increment primary key, 
+    nome_aluno varchar(100) not null, 
+    turma int(2)  not null
+);
+
+create table prova_aluno(
+	id_prova_aluno int auto_increment primary key,
+    aluno_id int not null,
+    prova_id int not null,
+    constraint fk_aluno foreign key (aluno_id) references aluno (id_aluno),
+    constraint fk_prova foreign key(prova_id) references prova(id_prova),
+    constraint uq_aluno_prova unique (aluno_id, prova_id)
+);
+
+alter table prova_aluno
+add column corrigida boolean not null default false;
+
+create table resposta (
+    id_resposta int auto_increment primary key,
+    prova_aluno_id int not null, 
+    questao_id int not null, 
+    alternativa_marcada char(1) not null,
+
+    constraint fk_resposta_prova_aluno foreign key (prova_aluno_id) references prova_aluno(id_prova_aluno),
+
+    constraint fk_resposta_questao foreign key (questao_id) references questao(id_questao),
+
+    constraint uq_resposta_prova_aluno_questao unique (prova_aluno_id, questao_id),
+
+    constraint chk_alternativa_marcada check (alternativa_marcada in ('A', 'B', 'C', 'D', 'E'))
+);
+
+alter table prova_aluno
+add column corrigida boolean not null default false;
+
+describe prova_aluno;
+
+select * from resposta;
+
+SELECT
+    pa.id_prova_aluno,
+    pa.aluno_id,
+    a.nome_aluno,
+    a.turma,
+    pa.prova_id,
+    pa.corrigida
+FROM prova_aluno pa
+INNER JOIN aluno a
+    ON a.id_aluno = pa.aluno_id
+WHERE pa.prova_id = 1
+ORDER BY a.turma, a.nome_aluno;

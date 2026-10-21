@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alunos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <main class="container mt-5 bg-info p-5 rounded">
+        <div class="container mt-2">
+            <h1 class="text-center mb-4">Gerenciamento de Alunos</h1>
+        </div>
+        
+        <form id="cadastroAlunoForm" class="container mt-2">
+            <div class="mb-3">
+                <label for="nome" class="form-label fw-bold">Nome do Aluno</label>
+                <input type="text" class="form-control" id="nome" placeholder="Digite o nome do aluno" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="turma" class="form-label fw-bold">Turma</label>
+                <input type="number" class="form-control" id="turma" placeholder="Digite a turma" required>
+            </div>
+
+            <div id="mensagemAlerta" class="mb-3"></div>
+            <button type="submit" class="btn btn-primary w-30 fw-bold">Cadastrar Aluno</button>
+        </form>
+
+        <form id="pesquisarAlunoForm" class="container mt-2">
+            <div class="mb-3">
+                <label for="pesquisa" class="form-label fw-bold">Pesquisar por Turma</label>
+                <input type="number" class="form-control" id="pesquisa" placeholder="Digite o número da turma" required>
+            </div>
+            <button type="button" id="btnPesquisar" class="btn btn-primary w-30 fw-bold">Pesquisar</button>
+            <button type="button" id="btnLimparPesquisa" class="btn btn-primary ms-2 fw-bold">Ver Todos</button>
+        </form>
+
+        <div class="mt-5">
+        <h3 class="text-center mb-3">Alunos Cadastrados</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white rounded shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Turma</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaAlunosBody">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </main>
+    <footer class="bg-primary text-center text-white mt-5 p-3">
+        <p>versão mvp 0.1</p>
+    </footer> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/alunos.js"></script>
+</body>
+</html>
