@@ -1,4 +1,4 @@
-
+"
 const API_URL = "http://127.0.0.1:8000";
 
 const provaSelect = document.getElementById("provaSelect");
@@ -256,6 +256,7 @@ formRespostas.addEventListener("submit", async (event) => {
     botaoEnviar.disabled = true;
     exibirMensagem("Enviando respostas...", "secondary");
 
+    
     try {
         const provaAlunoId = await obterParticipacao(
             alunoSelect.value,
@@ -264,6 +265,7 @@ formRespostas.addEventListener("submit", async (event) => {
 
         let totalEnviadas = 0;
 
+        // Envia as respostas de cada questão.
         for (const questao of questoesAtuais) {
             const selecionada = formRespostas.querySelector(
                 `input[name="questao-${questao.id_questao}"]:checked`
@@ -290,18 +292,36 @@ formRespostas.addEventListener("submit", async (event) => {
             totalEnviadas++;
         }
 
+        // Informa que o registro foi concluído.
         exibirMensagem(
-            `${totalEnviadas} respostas registradas com sucesso!`,
+            `${totalEnviadas} respostas registradas! Corrigindo a prova...`,
+            "secondary"
+        );
+
+        // Executa a correção automática.
+        const resultado = await requisitar(
+            `/correcao/${provaAlunoId}`
+        );
+
+        // Exibe o resultado da correção.
+        exibirMensagem(
+            `Prova corrigida com sucesso! ` +
+            `Acertos: ${resultado.acertos} | ` +
+            `Erros: ${resultado.erros} | ` +
+            `Total de questões: ${resultado.total_questoes}.`,
             "success"
         );
+
     } catch (erro) {
         exibirMensagem(
-            `Erro ao enviar respostas: ${erro.message}`
+            `Erro ao enviar ou corrigir as respostas: ${erro.message}`,
+            "danger"
         );
     } finally {
         botaoEnviar.disabled = false;
     }
 });
+
 
 // Atualiza as questões quando a prova muda.
 provaSelect.addEventListener("change", carregarQuestoes);

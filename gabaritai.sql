@@ -12,7 +12,8 @@ create table professor (
     
 );
 
-select * from prova;
+insert into professor (nome, email, senha) values ('teste', 'testw@teste', 1234);
+select * from professor;
 
 create table prova (
 	id_prova int(10) auto_increment primary key,
@@ -35,6 +36,8 @@ create table questao (
     constraint fk_questao_professor foreign key (professor_id) references professor (id_cadastro),
     constraint uq_questao_prova_numero unique (prova_id, numero_questao)
 );
+
+select * from questao;
 
 create table aluno (
 	id_aluno int auto_increment primary key, 
@@ -69,4 +72,22 @@ create table resposta (
     constraint chk_alternativa_marcada check (alternativa_marcada in ('A', 'B', 'C', 'D', 'E'))
 );
 
-select * from prova_aluno;
+alter table prova_aluno
+add column corrigida boolean not null default false;
+
+describe prova_aluno;
+
+select * from resposta;
+
+SELECT
+    pa.id_prova_aluno,
+    pa.aluno_id,
+    a.nome_aluno,
+    a.turma,
+    pa.prova_id,
+    pa.corrigida
+FROM prova_aluno pa
+INNER JOIN aluno a
+    ON a.id_aluno = pa.aluno_id
+WHERE pa.prova_id = 1
+ORDER BY a.turma, a.nome_aluno;
