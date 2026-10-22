@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | GabaritAI</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="navbar bg-primary navbar-dark px-3">
+        <button
+            class="btn btn-outline-light"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuLateral"
+            aria-controls="menuLateral"
+            aria-expanded="true"
+            aria-label="Recolher ou expandir menu"
+        >
+            ☰
+        </button>
+
+        <a class="navbar-brand ms-3 me-auto" href="dashboard.html">
+            GabaritAI
+        </a>
+
+        <span class="navbar-text text-white">
+            Painel do professor
+        </span>
+    </header>
+
+    <div class="d-flex">
+        <aside
+            class="collapse show bg-light border-end"
+            id="menuLateral"
+            style="width: 250px; min-height: calc(100vh - 56px);"
+        >
+            <nav class="nav flex-column p-3">
+                <span class="text-secondary small mb-2">
+                    MENU PRINCIPAL
+                </span>
+
+                <a class="nav-link active" href="dashboard.html">
+                    Início
+                </a>
+                <a class="nav-link" href="alunos.html">
+                    Alunos
+                </a>
+                <a class="nav-link" href="cadastro_prova.html">
+                    Provas
+                </a>
+                <a class="nav-link" href="lista_questoes.html">
+                    Questões e gabaritos
+                </a>
+                <a class="nav-link" href="respostas.html">
+                    Respostas e correção
+                </a>
+                <a class="nav-link" href="ranking.html">
+                    Ranking
+                </a>
+            </nav>
+        </aside>
+
+        <main class="container-fluid p-4">
+            <h1 class="h3 mb-2">Bem-vindo ao GabaritAI!</h1>
+
+            <p class="text-secondary mb-4">
+                Acesse as funcionalidades do sistema pelo menu
+                ou pelos atalhos abaixo.
+            </p>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="alunos.html"
+                       class="card card-body h-100 text-decoration-none">
+                        <h2 class="h5">Alunos</h2>
+                        <p class="text-secondary mb-0">
+                            Cadastre e consulte os alunos.
+                        </p>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="cadastro_prova.html"
+                       class="card card-body h-100 text-decoration-none">
+                        <h2 class="h5">Provas</h2>
+                        <p class="text-secondary mb-0">
+                            Acesse o cadastro de provas.
+                        </p>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="lista_questoes.html"
+                       class="card card-body h-100 text-decoration-none">
+                        <h2 class="h5">Questões e gabaritos</h2>
+                        <p class="text-secondary mb-0">
+                            Consulte e gerencie os gabaritos.
+                        </p>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="respostas.html"
+                       class="card card-body h-100 text-decoration-none">
+                        <h2 class="h5">Respostas e correção</h2>
+                        <p class="text-secondary mb-0">
+                            Registre respostas e consulte correções.
+                        </p>
+                    </a>
+                </div>
+
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="ranking.html"
+                       class="card card-body h-100 text-decoration-none">
+                        <h2 class="h5">Ranking</h2>
+                        <p class="text-secondary mb-0">
+                            Consulte a classificação dos alunos.
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
