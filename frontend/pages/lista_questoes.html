@@ -10,70 +10,152 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <main class="container mt-5 bg-info p-5 rounded">
-        <h1 class="text-center mb-4">Questões da Prova</h1>
-        <!-- Seleção da prova -->
-        <div class="container mt-5">
-            <h2 class="text-center mb-4">Selecione a prova</h2>
-            <form id="seletorProvaForm">
-                <div class="mb-3">
-                    <label for="provaSelect" class="form-label">
-                        Prova
-                    </label>
-                    <select class="form-select" id="provaSelect">
-                        <option value="">Selecione uma prova</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    Selecionar Prova
-                </button>
-            </form>
-        </div>
-        <!-- Tabela de questões -->
-        <div class="container mt-5">
-            <div class="d-flex justify-content-between align-items-end mb-3" id="adicionaQuestao">
-                <h2 class="mb-0">Questões</h2>
-                <form id="cadastroQuestaoForm" class="row g-2 align-items-end">
-                    <div class="col-auto">
-                        <label for="numeroQuestao" class="form-label mb-1">Nº Questão</label>
-                        <input type="number" class="form-control" id="numeroQuestao" min="1" placeholder="Ex: 1" required>
+    <!-- Barra superior -->
+    <header class="navbar bg-primary navbar-dark px-3">
+        <button
+            class="btn btn-outline-light"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#menuLateral"
+            aria-controls="menuLateral"
+            aria-expanded="true"
+            aria-label="Recolher ou expandir menu"
+        >
+            ☰
+        </button>
+
+        <a class="navbar-brand ms-3 me-auto" href="dashboard.html">
+            GabaritAI
+        </a>
+
+        <span class="navbar-text text-white">
+            Painel do professor
+        </span>
+    </header>
+
+    <div class="d-flex">
+        <!-- Menu lateral -->
+        <aside
+            class="menu-lateral collapse show"
+            id="menuLateral"
+        >
+            <nav class="nav flex-column p-3">
+                <span class="menu-titulo">
+                    MENU PRINCIPAL
+                </span>
+
+                <a class="nav-link" href="dashboard.html">
+                    Início
+                </a>
+
+                <a
+                    class="nav-link"
+                    href="alunos.html"
+                >
+                    Alunos
+                </a>
+
+                <a class="nav-link" 
+                    href="cadastro_prova.html"
+                >
+                    Provas
+                </a>
+
+                <a class="nav-link active" 
+                    href="lista_questoes.html"
+                    aria-current="page"
+                >
+                    Questões e gabaritos
+                </a>
+
+                <a class="nav-link" href="respostas.html">
+                    Respostas e correção
+                </a>
+
+                <a class="nav-link" href="ranking.html">
+                    Ranking
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-grow-1 p-4">
+            <h1 class="titulo-card mb-4">Questões da Prova</h1>
+            <!-- Seleção da prova -->
+            <div class="container-fluid px-0">
+                <h2 class="titulo-card mb-3">Selecione a prova</h2>
+                <section class="card shadow-sm mb-5">
+                    <div class="card-body">
+                        <form id="seletorProvaForm">
+                            <div class="mb-3">
+                                <label for="provaSelect" class="form-label fw-bold">
+                                    Prova
+                                </label>
+                                <select class="form-select" id="provaSelect">
+                                    <option value="">Selecione uma prova</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn button-primary">
+                                Selecionar Prova
+                            </button>
+                        </form>
                     </div>
-                    <div class="col-auto">
-                        <label for="alternativaCorreta" class="form-label mb-1">Resposta correta</label>
-                        <select class="form-select" id="alternativaCorreta" required>
-                            <option value="">Selecione...</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                        </select>
+                </section>
+                    
+                <section class="card shadow-sm mb-4">
+                    <!-- Tabela de questões -->
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4" id="adicionaQuestao">
+                            <h2 class="titulo-card mb-0">Questões</h2>
+                            <form id="cadastroQuestaoForm" class="row g-2 align-items-end">
+                                <div class="col-auto">
+                                    <label for="numeroQuestao" class="form-label mb-1 fw-bold">
+                                        Nº Questão
+                                    </label>
+                                    <input type="number" class="form-control" id="numeroQuestao" min="1" placeholder="Ex: 1" required>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="alternativaCorreta" class="form-label mb-1">Resposta correta</label>
+                                    <select class="form-select" id="alternativaCorreta" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="E">E</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn button-primary" id="botaoSalvarQuestao">
+                                        Salvar questão
+                                    </button>
+
+                                    <button type="button" class="btn btn-secondary d-none" id="botaoCancelarEdicao">
+                                        Cancelar edição
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead class="cabecalho-tabela">
+                                    <tr>
+                                        <th>Nº</th>
+                                        <th>Alternativa correta</th>
+                                        <th>Professor</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaQuestoesBody">
+                                    <!-- Questões serão inseridas pelo JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-success">Salvar questão</button>
-                    </div>
-                </form>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover bg-white rounded">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Nº</th>
-                            <th>Alternativa correta</th>
-                            <th>Professor</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaQuestoesBody">
-                        <!-- Questões serão inseridas pelo JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-    <footer class="bg-primary text-center text-white mt-5 p-3">
-        <p>versão mvp 0.1</p>
-    </footer>
+                </section>
+            </div>            
+        </main>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/script.js"></script>
     <script src="../js/questoes.js"></script>
