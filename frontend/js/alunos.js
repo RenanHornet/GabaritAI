@@ -21,7 +21,7 @@ async function carregarAlunos() {
             linha.innerHTML = `
                 <td>${aluno.id_aluno}</td>
                 <td class="fw-bold">${aluno.nome_aluno}</td>
-                <td><span class="badge bg-secondary fs-6">Turma ${aluno.turma}</span></td>
+                <td><span class="badge badge-turma">Turma ${aluno.turma}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-danger fw-bold" onclick="deletarAluno(${aluno.id_aluno})">
                         🗑️ Excluir
@@ -80,7 +80,7 @@ async function carregarAlunosPorTurma(turma) {
             linha.innerHTML = `
                 <td>${aluno.id_aluno}</td>
                 <td class="fw-bold">${aluno.nome_aluno}</td>
-                <td><span class="badge bg-secondary fs-6">Turma ${aluno.turma}</span></td>
+                <td><span class="badge-turma">Turma ${aluno.turma}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-danger fw-bold" onclick="deletarAluno(${aluno.id_aluno})">
                         🗑️ Excluir
