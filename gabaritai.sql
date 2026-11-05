@@ -12,8 +12,25 @@ create table professor (
     
 );
 
-insert into professor (nome, email, senha) values ('teste', 'testw@teste', 1234);
-select * from professor;
+alter table professor
+modify column senha varchar(255) not null;
+
+describe professor;
+
+insert into professor (nome, email, senha) values ('Teste', 'teste@teste', 1234);
+
+select * from prova;
+
+SELECT id_cadastro, nome, email, senha
+FROM professor;
+
+UPDATE professor
+SET senha = '$argon2id$v=19$m=65536,t=3,p=4$V15nU/0lxqKGCacbGZyYlw$CZmshMY4u/NDkqN/PYTZzAapJ+kyIewYPeeamLOmvjE'
+WHERE email = 'teste@teste';
+
+UPDATE professor
+SET email = 'teste@teste.com'
+WHERE email = 'teste@teste';
 
 create table prova (
 	id_prova int(10) auto_increment primary key,
@@ -37,8 +54,6 @@ create table questao (
     constraint uq_questao_prova_numero unique (prova_id, numero_questao)
 );
 
-select * from questao;
-
 create table aluno (
 	id_aluno int auto_increment primary key, 
     nome_aluno varchar(100) not null, 
@@ -57,6 +72,18 @@ create table prova_aluno(
 alter table prova_aluno
 add column corrigida boolean not null default false;
 
+SELECT
+    pa.id_prova_aluno,
+    pa.aluno_id,
+    pa.prova_id,
+    pa.corrigida,
+    a.nome_aluno,
+    a.turma
+FROM prova_aluno pa
+JOIN aluno a ON a.id_aluno = pa.aluno_id
+WHERE pa.prova_id = 1
+  AND pa.corrigida = 1;
+
 create table resposta (
     id_resposta int auto_increment primary key,
     prova_aluno_id int not null, 
@@ -72,22 +99,4 @@ create table resposta (
     constraint chk_alternativa_marcada check (alternativa_marcada in ('A', 'B', 'C', 'D', 'E'))
 );
 
-alter table prova_aluno
-add column corrigida boolean not null default false;
-
-describe prova_aluno;
-
-select * from resposta;
-
-SELECT
-    pa.id_prova_aluno,
-    pa.aluno_id,
-    a.nome_aluno,
-    a.turma,
-    pa.prova_id,
-    pa.corrigida
-FROM prova_aluno pa
-INNER JOIN aluno a
-    ON a.id_aluno = pa.aluno_id
-WHERE pa.prova_id = 1
-ORDER BY a.turma, a.nome_aluno;
+drop database gabaritai;
