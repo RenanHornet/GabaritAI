@@ -75,7 +75,7 @@ volume. Para também removê-los e recriar o banco do zero, execute
 ### Correção automática por foto
 
 O serviço `worker` lê as fotos dos cartões. Na tela **Respostas e correção**,
-escolha **Automático**, envie a foto e confira as questões destacadas em
+escolha **Webcam**, capture o cartão e confira as questões destacadas em
 amarelo antes de registrar. Em caso de leitura errada, veja os logs com
 `docker compose logs worker`.
 

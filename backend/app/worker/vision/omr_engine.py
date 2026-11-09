@@ -23,6 +23,7 @@ MARKERS = np.array(
 )  # topo-esquerda, topo-direita, baixo-direita, baixo-esquerda
 TITLE_BOX = (80, 65, 257, 95)  # área do texto "GABARITAI"
 MIN_TITLE_INK = 0.15  # abaixo disso, o título não está onde deveria
+MIN_DETECTION_SIZE = 2600  # maior lado da imagem ao procurar os quadrados
 
 QUESTIONS = 40
 QUESTIONS_PER_COLUMN = 10
@@ -51,6 +52,9 @@ def bubble_center(question: int, option_index: int) -> tuple[int, int]:
 def find_markers(image: np.ndarray) -> np.ndarray:
     """Acha os quatro quadrados pretos e devolve os centros em ordem horária."""
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Na webcam os quadrados saem pequenos; ampliar deixa o contorno mais nítido.
+    zoom = max(1.0, MIN_DETECTION_SIZE / max(gray.shape))
+    gray = cv2.resize(gray, None, fx=zoom, fy=zoom, interpolation=cv2.INTER_CUBIC)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     height, width = gray.shape
     # Janela grande e proporcional à foto: aguenta sombra e não "fura" o quadrado.
@@ -96,7 +100,7 @@ def find_markers(image: np.ndarray) -> np.ndarray:
     chosen_areas = [areas[i] for i in chosen]
     if len(set(chosen)) < 4 or max(chosen_areas) > 2.5 * min(chosen_areas):
         raise missing_corners
-    return points[chosen]
+    return points[chosen] / zoom
 
 
 def rectify_page(image: np.ndarray) -> np.ndarray:

@@ -158,25 +158,28 @@
                                 <input type="radio" class="btn-check" name="modo" id="modoManual" value="manual" checked>
                                 <label class="btn btn-outline-primary" for="modoManual">Manual</label>
 
-                                <input type="radio" class="btn-check" name="modo" id="modoAutomatico" value="automatico">
-                                <label class="btn btn-outline-primary" for="modoAutomatico">Automático (foto)</label>
+                                <input type="radio" class="btn-check" name="modo" id="modoWebcam" value="webcam">
+                                <label class="btn btn-outline-primary" for="modoWebcam">Webcam</label>
                             </div>
                         </div>
 
-                        <!-- Envio da foto (somente no modo automático) -->
-                        <div id="areaFoto" class="mb-4" hidden>
-                            <label for="fotoCartao" class="form-label fw-bold">
-                                Foto do cartão
-                            </label>
-
-                            <input id="fotoCartao" type="file" class="form-control" accept="image/jpeg,image/png">
+                        <!-- Câmera (somente no modo webcam) -->
+                        <div id="areaCamera" class="mb-4" hidden>
+                            <video
+                                id="videoCamera"
+                                class="w-100 rounded border d-block"
+                                style="max-width: 640px"
+                                autoplay
+                                playsinline
+                                muted
+                            ></video>
 
                             <div class="form-text">
-                                Os quatro quadrados pretos precisam aparecer na foto.
+                                Mostre o cartão inteiro, com os quatro quadrados pretos visíveis.
                             </div>
 
                             <button id="botaoLer" type="button" class="btn button-primary fw-bold mt-2">
-                                Ler cartão
+                                Capturar e ler
                             </button>
                         </div>
 

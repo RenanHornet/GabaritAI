@@ -7,9 +7,10 @@ const alunoSelect = document.getElementById("alunoSelect");
 const listaQuestoes = document.getElementById("listaQuestoes");
 const formRespostas = document.getElementById("formRespostas");
 const mensagem = document.getElementById("mensagem");
-const areaFoto = document.getElementById("areaFoto");
+const areaCamera = document.getElementById("areaCamera");
+const videoCamera = document.getElementById("videoCamera");
+const modoWebcam = document.getElementById("modoWebcam");
 const areaRespostas = document.getElementById("areaRespostas");
-const fotoCartao = document.getElementById("fotoCartao");
 const botaoLer = document.getElementById("botaoLer");
 
 const EM_BRANCO = "BRANCO";
@@ -17,6 +18,8 @@ const alternativas = ["A", "B", "C", "D", "E", EM_BRANCO];
 
 let questoesAtuais = [];
 let leituraPronta = false;
+let streamCamera = null;
+let ligandoCamera = false;
 
 // Exibe mensagens para o usuário.
 function exibirMensagem(texto, tipo = "danger") {
@@ -338,11 +341,68 @@ formRespostas.addEventListener("submit", async (event) => {
 });
 
 
-// No modo automático, as questões só aparecem depois da leitura da foto.
+// A câmera só fica ligada enquanto espera a leitura do cartão.
+function precisaCamera() {
+    return modoWebcam.checked && !leituraPronta;
+}
+
+async function ligarCamera() {
+    if (streamCamera || ligandoCamera) {
+        return;
+    }
+
+    ligandoCamera = true;
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1920 }, height: { ideal: 1080 } }
+        });
+
+        // O usuário pode ter trocado de modo enquanto a câmera ligava.
+        if (!precisaCamera()) {
+            stream.getTracks().forEach((trilha) => trilha.stop());
+            return;
+        }
+
+        streamCamera = stream;
+        videoCamera.srcObject = stream;
+    } catch (erro) {
+        exibirMensagem("Não foi possível abrir a webcam. Verifique a permissão do navegador.");
+    } finally {
+        ligandoCamera = false;
+    }
+}
+
+function desligarCamera() {
+    if (streamCamera) {
+        streamCamera.getTracks().forEach((trilha) => trilha.stop());
+        streamCamera = null;
+        videoCamera.srcObject = null;
+    }
+}
+
+// No modo webcam, as questões só aparecem depois da leitura do cartão.
 function atualizarModo() {
-    const automatico = document.getElementById("modoAutomatico").checked;
-    areaFoto.hidden = !automatico;
-    areaRespostas.hidden = automatico && !leituraPronta;
+    areaCamera.hidden = !modoWebcam.checked;
+    videoCamera.hidden = !precisaCamera();
+    areaRespostas.hidden = precisaCamera();
+    botaoLer.textContent = leituraPronta ? "Ler novamente" : "Capturar e ler";
+
+    if (precisaCamera()) {
+        ligarCamera();
+    } else {
+        desligarCamera();
+    }
+}
+
+// Transforma a imagem atual da câmera em um arquivo JPG.
+function capturarFoto() {
+    const canvas = document.createElement("canvas");
+    canvas.width = videoCamera.videoWidth;
+    canvas.height = videoCamera.videoHeight;
+    canvas.getContext("2d").drawImage(videoCamera, 0, 0);
+
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
 }
 
 // Consulta a API até o worker terminar de ler a foto.
@@ -395,12 +455,22 @@ function aplicarLeitura(respostas) {
     );
 }
 
-// Envia a foto para a API e preenche o formulário com o resultado.
+// Captura o cartão, envia para a API e preenche o formulário com o resultado.
 async function lerCartao() {
-    const foto = fotoCartao.files[0];
+    // "Ler novamente": volta para a câmera.
+    if (leituraPronta) {
+        leituraPronta = false;
+        atualizarModo();
+        return;
+    }
 
-    if (!provaSelect.value || !alunoSelect.value || !foto) {
-        exibirMensagem("Selecione a prova, o aluno e a foto do cartão.");
+    if (!provaSelect.value || !alunoSelect.value) {
+        exibirMensagem("Selecione a prova e o aluno.");
+        return;
+    }
+
+    if (!streamCamera || !videoCamera.videoWidth) {
+        exibirMensagem("A webcam ainda não está pronta.");
         return;
     }
 
@@ -416,7 +486,7 @@ async function lerCartao() {
         const dados = new FormData();
         dados.append("prova_id", provaSelect.value);
         dados.append("aluno_id", alunoSelect.value);
-        dados.append("arquivo", foto);
+        dados.append("arquivo", await capturarFoto(), "cartao.jpg");
 
         const { id } = await requisitar("/leituras", {
             method: "POST",
