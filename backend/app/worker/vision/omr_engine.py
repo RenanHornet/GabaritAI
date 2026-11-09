@@ -39,6 +39,13 @@ SAMPLE_RADIUS = 11  # mede só o miolo da bolha, sem o contorno impresso
 MIN_FILL_RATIO = 0.30
 MIN_WINNER_MARGIN = 0.15
 
+# Reconhecimento dos círculos impressos, usados para corrigir a curvatura da lente.
+MIN_BUBBLE_AREA, MAX_BUBBLE_AREA = 500, 2600
+MIN_BUBBLE_ROUNDNESS = 0.6
+GRID_TOLERANCE = 75  # quanto um círculo pode estar fora do lugar esperado
+MIN_BUBBLES_TO_ALIGN = 120  # de 200; com menos, não dá para confiar no ajuste
+MAX_ALIGN_ERROR = 12  # distância máxima, em pixels, para um ponto valer no ajuste
+
 
 def bubble_center(question: int, option_index: int) -> tuple[int, int]:
     """Retorna o centro (x, y) de uma bolha no cartão modelo."""
@@ -124,7 +131,101 @@ def rectify_page(image: np.ndarray) -> np.ndarray:
         raise ValueError(
             "Não reconheci o cartão. Tire outra foto com os quatro cantos visíveis."
         )
-    return best_page
+    return align_to_printed_bubbles(best_page)
+
+
+def find_printed_bubbles(page: np.ndarray) -> np.ndarray:
+    """Devolve o centro (x, y) de cada círculo impresso encontrado no cartão."""
+    gray = cv2.cvtColor(page, cv2.COLOR_BGR2GRAY)
+    binary = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 151, 15
+    )
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    centers = []
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        perimeter = cv2.arcLength(contour, True)
+        if not (MIN_BUBBLE_AREA <= area <= MAX_BUBBLE_AREA):
+            continue
+        if 4 * np.pi * area / (perimeter * perimeter) < MIN_BUBBLE_ROUNDNESS:
+            continue
+        moments = cv2.moments(contour)
+        centers.append((moments["m10"] / moments["m00"], moments["m01"] / moments["m00"]))
+    return np.array(centers, dtype=np.float64).reshape(-1, 2)
+
+
+def match_bubbles_to_grid(found: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Descobre de qual posição do modelo é cada círculo encontrado."""
+    expected, matched = [], []
+    x_step, y_step = OPTION_STEP_X, ROW_STEP_Y
+
+    for column, first_x in enumerate(COLUMN_FIRST_X):
+        # Só vale o que está perto do bloco: ignora rabiscos fora das questões.
+        left, right = first_x - GRID_TOLERANCE, first_x + 4 * x_step + GRID_TOLERANCE
+        top = FIRST_ROW_Y - GRID_TOLERANCE
+        bottom = FIRST_ROW_Y + (QUESTIONS_PER_COLUMN - 1) * y_step + GRID_TOLERANCE
+        block = found[
+            (found[:, 0] >= left) & (found[:, 0] <= right)
+            & (found[:, 1] >= top) & (found[:, 1] <= bottom)
+        ]
+        if len(block) < 2:
+            continue
+
+        # A posição dentro do bloco diz a alternativa e a linha da bolha.
+        low, span = block.min(axis=0), np.ptp(block, axis=0)
+        if span[0] == 0 or span[1] == 0:
+            continue
+        options = np.rint((block[:, 0] - low[0]) / span[0] * 4)
+        rows = np.rint((block[:, 1] - low[1]) / span[1] * (QUESTIONS_PER_COLUMN - 1))
+
+        for point, option, row in zip(block, options, rows):
+            expected.append((first_x + option * x_step, FIRST_ROW_Y + row * y_step))
+            matched.append(point)
+
+    return np.array(expected).reshape(-1, 2), np.array(matched).reshape(-1, 2)
+
+
+def curve_terms(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Termos da curva que descreve a deformação causada pela lente."""
+    x, y = x / PAGE_W, y / PAGE_H
+    return np.stack(
+        [np.ones_like(x), x, y, x * x, x * y, y * y, x**3, x * x * y, x * y * y, y**3],
+        axis=-1,
+    )
+
+
+def align_to_printed_bubbles(page: np.ndarray) -> np.ndarray:
+    """
+    Corrige a curvatura da lente usando os círculos impressos como referência.
+
+    Os quatro cantos alinham só as bordas; no meio do cartão a webcam ainda
+    desloca as bolhas. Se não der para confiar na correção, mantém a imagem.
+    """
+    expected, matched = match_bubbles_to_grid(find_printed_bubbles(page))
+    if len(expected) < MIN_BUBBLES_TO_ALIGN:
+        return page
+
+    terms = curve_terms(expected[:, 0], expected[:, 1])
+    curve = np.linalg.lstsq(terms, matched, rcond=None)[0]
+
+    # Refaz o ajuste sem os pontos que ficaram longe (rabiscos e bolhas borradas).
+    errors = np.linalg.norm(terms @ curve - matched, axis=1)
+    good = errors <= MAX_ALIGN_ERROR
+    if good.sum() < MIN_BUBBLES_TO_ALIGN:
+        return page
+    curve = np.linalg.lstsq(terms[good], matched[good], rcond=None)[0]
+
+    # A curva é suave: calcular em 1/4 do tamanho e ampliar é suficiente.
+    small_x, small_y = np.meshgrid(
+        np.linspace(0, PAGE_W - 1, PAGE_W // 4), np.linspace(0, PAGE_H - 1, PAGE_H // 4)
+    )
+    source = curve_terms(small_x, small_y) @ curve
+    map_x = cv2.resize(source[..., 0].astype(np.float32), (PAGE_W, PAGE_H))
+    map_y = cv2.resize(source[..., 1].astype(np.float32), (PAGE_W, PAGE_H))
+    return cv2.remap(
+        page, map_x, map_y, cv2.INTER_LINEAR, borderValue=(255, 255, 255)
+    )
 
 
 def read_bubbles(page: np.ndarray) -> list[dict[str, Any]]:
