@@ -35,8 +35,29 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
     ports:
       - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+
+  # Usa a mesma imagem da API, mas roda o leitor de cartões.
+  worker:
+    build:
+      context: ./backend
+    image: gabaritai-api:latest
+    command: ["python", "-m", "app.worker.worker.runner"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-gabaritai}
+      DB_USER: ${DB_USER:-gabaritai}
+      DB_PASSWORD: ${DB_PASSWORD:-gabaritai_dev}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
     restart: unless-stopped
 
   frontend:
@@ -51,3 +72,4 @@ services:
 
 volumes:
   mysql_data:
+  uploads:

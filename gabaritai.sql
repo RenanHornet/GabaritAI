@@ -71,3 +71,20 @@ CREATE TABLE IF NOT EXISTS resposta (
     CONSTRAINT chk_alternativa_marcada
         CHECK (alternativa_marcada IN ('A', 'B', 'C', 'D', 'E'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Fila de fotos de cartão lidas pelo worker.
+CREATE TABLE IF NOT EXISTS processing_jobs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    exam_id BIGINT NOT NULL,
+    student_id BIGINT NULL,
+    image_path VARCHAR(1024) NOT NULL,
+    status VARCHAR(24) NOT NULL DEFAULT 'PENDING',
+    attempts INT NOT NULL DEFAULT 0,
+    worker_id VARCHAR(255) NULL,
+    error_message TEXT NULL,
+    result_json JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    started_at DATETIME NULL,
+    finished_at DATETIME NULL,
+    INDEX idx_jobs_status_created (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
