@@ -76,7 +76,8 @@ volume. Para também removê-los e recriar o banco do zero, execute
 
 O serviço `worker` lê as fotos dos cartões. Na tela **Respostas e correção**,
 escolha **Webcam**, capture o cartão e confira as questões destacadas em
-amarelo antes de registrar. Em caso de leitura errada, veja os logs com
+amarelo antes de registrar. Questão com mais de uma alternativa marcada é
+anulada e conta como erro. Em caso de leitura errada, veja os logs com
 `docker compose logs worker`.
 
 ## 📌 Status

@@ -39,7 +39,6 @@ CINZA = (170, 170, 170)
 VERMELHO = (0, 0, 220)
 BRANCO = (255, 255, 255)
 
-DUVIDA = ("MULTIPLE", "UNCERTAIN")
 
 
 def escrever(imagem, texto, x, y, cor=BRANCO, tamanho=0.6):
@@ -54,7 +53,9 @@ def desenhar_bolhas(cartao, leituras):
 
             if item["answer"] == letra:
                 cor, espessura = VERDE, 3
-            elif item["status"] in DUVIDA and preenchimento >= 0.15:
+            elif item["status"] == "MULTIPLE" and preenchimento >= 0.30:
+                cor, espessura = VERMELHO, 3
+            elif item["status"] == "UNCERTAIN" and preenchimento >= 0.15:
                 cor, espessura = LARANJA, 3
             else:
                 cor, espessura = CINZA, 1
@@ -90,12 +91,15 @@ def desenhar_resumo(largura, altura, leituras, erro, fps):
         escrever(resumo, "Mostre os quatro quadrados pretos.", 15, 92, CINZA)
         return resumo
 
-    contar = lambda *status: sum(item["status"] in status for item in leituras)
-    duvidas = [str(item["question"]) for item in leituras if item["status"] in DUVIDA]
+    def questoes(status):
+        return [str(item["question"]) for item in leituras if item["status"] == status]
 
-    escrever(resumo, f"Marcadas: {contar('ANSWERED')}", 15, 62, VERDE, 0.7)
-    escrever(resumo, f"Em branco: {contar('BLANK')}", 15, 92, CINZA, 0.7)
-    escrever(resumo, f"Duvida: {contar(*DUVIDA)}  {' '.join(duvidas)[:45]}", 15, 122, LARANJA, 0.7)
+    anuladas, duvidas = questoes("MULTIPLE"), questoes("UNCERTAIN")
+
+    escrever(resumo, f"Marcadas: {len(questoes('ANSWERED'))}", 15, 62, VERDE, 0.7)
+    escrever(resumo, f"Em branco: {len(questoes('BLANK'))}", 15, 92, CINZA, 0.7)
+    escrever(resumo, f"Anuladas: {len(anuladas)}  {' '.join(anuladas)[:45]}", 15, 122, VERMELHO, 0.7)
+    escrever(resumo, f"Duvida: {len(duvidas)}  {' '.join(duvidas)[:45]}", 15, 152, LARANJA, 0.7)
     return resumo
 
 

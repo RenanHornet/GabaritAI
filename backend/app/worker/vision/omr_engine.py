@@ -156,7 +156,7 @@ def read_bubbles(page: np.ndarray) -> list[dict[str, Any]]:
         if best < MIN_FILL_RATIO:
             status, answer = "BLANK", None
         elif second >= MIN_FILL_RATIO:
-            # Duas bolhas pintadas nunca viram resposta automática.
+            # Mais de uma bolha pintada: a questão é anulada.
             status, answer = "MULTIPLE", None
         elif best - second < MIN_WINNER_MARGIN:
             status, answer = "UNCERTAIN", None

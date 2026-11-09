@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS resposta (
     CONSTRAINT uq_resposta_prova_aluno_questao
         UNIQUE (prova_aluno_id, questao_id),
     CONSTRAINT chk_alternativa_marcada
-        CHECK (alternativa_marcada IN ('A', 'B', 'C', 'D', 'E'))
+        CHECK (alternativa_marcada IN ('A', 'B', 'C', 'D', 'E', 'X')) -- X = anulada
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Fila de fotos de cartão lidas pelo worker.

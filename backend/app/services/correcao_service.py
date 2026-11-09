@@ -51,6 +51,7 @@ def corrigir_prova(
     acertos = 0
     erros = 0
     em_branco = 0
+    anuladas = 0
 
     respostas_por_questao = {
         resposta.questao_id: resposta
@@ -66,7 +67,10 @@ def corrigir_prova(
         elif resposta_aluno.alternativa_marcada == questao.alternativa_correta:
             acertos += 1
         else:
+            # "X" = mais de uma alternativa marcada: anulada, conta como erro.
             erros += 1
+            if resposta_aluno.alternativa_marcada == "X":
+                anuladas += 1
     
     #Marca a participação como corrigida.
     participacao.corrigida = True
@@ -77,5 +81,6 @@ def corrigir_prova(
         "total_questoes": len(questoes),
         "acertos": acertos,
         "erros": erros,
-        "em_branco": em_branco
+        "em_branco": em_branco,
+        "anuladas": anuladas
     }

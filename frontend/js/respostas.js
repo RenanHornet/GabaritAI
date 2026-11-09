@@ -14,7 +14,9 @@ const areaRespostas = document.getElementById("areaRespostas");
 const botaoLer = document.getElementById("botaoLer");
 
 const EM_BRANCO = "BRANCO";
-const alternativas = ["A", "B", "C", "D", "E", EM_BRANCO];
+const ANULADA = "X"; // mais de uma alternativa marcada: conta como erro
+const alternativas = ["A", "B", "C", "D", "E", EM_BRANCO, ANULADA];
+const ROTULOS = { [EM_BRANCO]: "Em branco", [ANULADA]: "Anulada" };
 
 let questoesAtuais = [];
 let leituraPronta = false;
@@ -204,7 +206,7 @@ function renderizarQuestoes() {
             const label = document.createElement("label");
             label.className = "form-check-label";
             label.htmlFor = id;
-            label.textContent = alternativa === EM_BRANCO ? "Em branco" : alternativa;
+            label.textContent = ROTULOS[alternativa] ?? alternativa;
 
             wrapper.append(input, label);
             grupo.appendChild(wrapper);
@@ -326,6 +328,7 @@ formRespostas.addEventListener("submit", async (event) => {
             `Acertos: ${resultado.acertos} | ` +
             `Erros: ${resultado.erros} | ` +
             `Em branco: ${resultado.em_branco} | ` +
+            `Anuladas: ${resultado.anuladas} | ` +
             `Total de questões: ${resultado.total_questoes}.`,
             "success"
         );
@@ -428,6 +431,7 @@ async function aguardarLeitura(id) {
 function aplicarLeitura(respostas) {
     renderizarQuestoes();
     let paraRevisar = 0;
+    let anuladas = 0;
 
     questoesAtuais.forEach((questao) => {
         const lida = respostas.find((r) => r.questao === questao.numero_questao);
@@ -437,6 +441,10 @@ function aplicarLeitura(respostas) {
             valor = lida.alternativa;
         } else if (lida?.status === "BLANK") {
             valor = EM_BRANCO;
+        } else if (lida?.status === "MULTIPLE") {
+            valor = ANULADA;
+            anuladas++;
+            document.getElementById(`linha-${questao.id_questao}`).classList.add("bg-danger-subtle");
         }
 
         if (valor) {
@@ -450,7 +458,7 @@ function aplicarLeitura(respostas) {
     leituraPronta = true;
     atualizarModo();
     exibirMensagem(
-        `Leitura concluída. Questões para revisar: ${paraRevisar}. Confira e registre.`,
+        `Leitura concluída. Anuladas: ${anuladas}. Para revisar: ${paraRevisar}. Confira e registre.`,
         "success"
     );
 }
