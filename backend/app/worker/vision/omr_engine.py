@@ -22,7 +22,7 @@ MARKERS = np.array(
     [[36, 36], [1647, 36], [1647, 1154], [36, 1154]], dtype=np.float32
 )  # topo-esquerda, topo-direita, baixo-direita, baixo-esquerda
 TITLE_BOX = (80, 65, 257, 95)  # área do texto "GABARITAI"
-MIN_TITLE_INK = 0.15  # abaixo disso, o título não está onde deveria
+MIN_TITLE_INK = 0.05  # abaixo disso, o título não está onde deveria (na webcam as letras ficam finas)
 MIN_DETECTION_SIZE = 2600  # maior lado da imagem ao procurar os quadrados
 
 QUESTIONS = 40
@@ -45,6 +45,7 @@ MIN_BUBBLE_ROUNDNESS = 0.6
 GRID_TOLERANCE = 75  # quanto um círculo pode estar fora do lugar esperado
 MIN_BUBBLES_TO_ALIGN = 120  # de 200; com menos, não dá para confiar no ajuste
 MAX_ALIGN_ERROR = 12  # distância máxima, em pixels, para um ponto valer no ajuste
+SAME_LINE_DISTANCE = 30  # círculos a essa distância estão na mesma fileira
 
 
 def bubble_center(question: int, option_index: int) -> tuple[int, int]:
@@ -181,6 +182,10 @@ def match_bubbles_to_grid(found: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
             (found[:, 0] >= left) & (found[:, 0] <= right)
             & (found[:, 1] >= top) & (found[:, 1] <= bottom)
         ]
+        # Bolha de verdade tem vizinhas alinhadas; cursor ou número solto não tem.
+        same_column = np.abs(block[:, 0, None] - block[:, 0]) < SAME_LINE_DISTANCE
+        same_row = np.abs(block[:, 1, None] - block[:, 1]) < SAME_LINE_DISTANCE
+        block = block[(same_column.sum(axis=1) >= 4) & (same_row.sum(axis=1) >= 3)]
         if len(block) < 2:
             continue
 
@@ -212,11 +217,14 @@ def align_to_printed_bubbles(page: np.ndarray) -> np.ndarray:
     Corrige a curvatura da lente usando os círculos impressos como referência.
 
     Os quatro cantos alinham só as bordas; no meio do cartão a webcam ainda
-    desloca as bolhas. Se não der para confiar na correção, mantém a imagem.
+    desloca as bolhas. Sem alinhar, a leitura sairia errada: por isso recusa a foto.
     """
+    cannot_align = ValueError(
+        "Não consegui alinhar as bolhas do cartão. Tire outra foto, mais de frente."
+    )
     expected, matched = match_bubbles_to_grid(find_printed_bubbles(page))
     if len(expected) < MIN_BUBBLES_TO_ALIGN:
-        return page
+        raise cannot_align
 
     terms = curve_terms(expected[:, 0], expected[:, 1])
     curve = np.linalg.lstsq(terms, matched, rcond=None)[0]
@@ -225,7 +233,7 @@ def align_to_printed_bubbles(page: np.ndarray) -> np.ndarray:
     errors = np.linalg.norm(terms @ curve - matched, axis=1)
     good = errors <= MAX_ALIGN_ERROR
     if good.sum() < MIN_BUBBLES_TO_ALIGN:
-        return page
+        raise cannot_align
     curve = np.linalg.lstsq(terms[good], matched[good], rcond=None)[0]
 
     # A curva é suave: calcular em 1/4 do tamanho e ampliar é suficiente.
@@ -285,16 +293,36 @@ def read_bubbles(page: np.ndarray) -> list[dict[str, Any]]:
     return results
 
 
-def save_debug_image(page: np.ndarray, readings: list[dict[str, Any]], output: Path) -> None:
-    """Salva o cartão com um círculo em cada bolha, para conferir o alinhamento."""
-    debug = page.copy()
+def draw_readings(page: np.ndarray, readings: list[dict[str, Any]]) -> np.ndarray:
+    """Devolve o cartão com a área medida em cada bolha e o que foi lido nela."""
+    drawing = page.copy()
     for item in readings:
         for index, option in enumerate(OPTIONS):
-            marked = item["answer"] == option
-            color = (0, 180, 0) if marked else (0, 140, 255)
-            cv2.circle(debug, bubble_center(item["question"], index), 19, color, 2)
+            fill = item["fill_ratios"][option]
+            center = bubble_center(item["question"], index)
+
+            if item["answer"] == option:
+                color, thickness = (0, 180, 0), 3  # verde: resposta lida
+            elif item["status"] == "MULTIPLE" and fill >= MIN_FILL_RATIO:
+                color, thickness = (0, 0, 220), 3  # vermelho: anulada
+            elif item["status"] == "UNCERTAIN" and fill >= MIN_WINNER_MARGIN:
+                color, thickness = (0, 140, 255), 3  # laranja: dúvida
+            else:
+                color, thickness = (170, 170, 170), 1  # cinza: vazia
+
+            cv2.circle(drawing, center, SAMPLE_RADIUS, color, thickness)
+            if fill >= MIN_WINNER_MARGIN:
+                cv2.putText(
+                    drawing, f"{fill:.0%}", (center[0] - 20, center[1] - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 220), 1, cv2.LINE_AA,
+                )
+    return drawing
+
+
+def save_debug_image(page: np.ndarray, readings: list[dict[str, Any]], output: Path) -> None:
+    """Salva o cartão desenhado, para conferir o alinhamento."""
     output.parent.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(output), debug)
+    cv2.imwrite(str(output), draw_readings(page, readings))
 
 
 def process_image(image_path: Path, debug_dir: Path | None = None) -> dict[str, Any]:

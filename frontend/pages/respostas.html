@@ -165,18 +165,27 @@
 
                         <!-- Câmera (somente no modo webcam) -->
                         <div id="areaCamera" class="mb-4" hidden>
-                            <video
-                                id="videoCamera"
-                                class="w-100 rounded border d-block"
-                                style="max-width: 640px"
-                                autoplay
-                                playsinline
-                                muted
-                            ></video>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <video
+                                        id="videoCamera"
+                                        class="w-100 rounded border d-block"
+                                        autoplay
+                                        playsinline
+                                        muted
+                                    ></video>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <img id="previaCartao" class="w-100 rounded border d-block" alt="Prévia do que o leitor está vendo" hidden>
+                                </div>
+                            </div>
 
                             <div class="form-text">
                                 Mostre o cartão inteiro, com os quatro quadrados pretos visíveis.
                             </div>
+
+                            <p id="statusPrevia" class="fw-semibold mt-2 mb-0" role="status"></p>
 
                             <button id="botaoLer" type="button" class="btn button-primary fw-bold mt-2">
                                 Capturar e ler

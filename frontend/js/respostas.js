@@ -12,6 +12,8 @@ const videoCamera = document.getElementById("videoCamera");
 const modoWebcam = document.getElementById("modoWebcam");
 const areaRespostas = document.getElementById("areaRespostas");
 const botaoLer = document.getElementById("botaoLer");
+const previaCartao = document.getElementById("previaCartao");
+const statusPrevia = document.getElementById("statusPrevia");
 
 const EM_BRANCO = "BRANCO";
 const ANULADA = "X"; // mais de uma alternativa marcada: conta como erro
@@ -22,6 +24,9 @@ let questoesAtuais = [];
 let leituraPronta = false;
 let streamCamera = null;
 let ligandoCamera = false;
+let previaRodando = false;
+let cartaoVisivel = false;
+let lendoCartao = false;
 
 // Exibe mensagens para o usuário.
 function exibirMensagem(texto, tipo = "danger") {
@@ -369,6 +374,7 @@ async function ligarCamera() {
 
         streamCamera = stream;
         videoCamera.srcObject = stream;
+        acompanharCartao();
     } catch (erro) {
         exibirMensagem("Não foi possível abrir a webcam. Verifique a permissão do navegador.");
     } finally {
@@ -390,12 +396,66 @@ function atualizarModo() {
     videoCamera.hidden = !precisaCamera();
     areaRespostas.hidden = precisaCamera();
     botaoLer.textContent = leituraPronta ? "Ler novamente" : "Capturar e ler";
+    previaCartao.hidden = !precisaCamera() || !cartaoVisivel;
+    statusPrevia.hidden = !precisaCamera();
+    atualizarBotaoLer();
 
     if (precisaCamera()) {
         ligarCamera();
     } else {
         desligarCamera();
     }
+}
+
+// Na câmera, só deixa capturar quando o cartão está sendo reconhecido.
+function atualizarBotaoLer() {
+    botaoLer.disabled = lendoCartao || (precisaCamera() && !cartaoVisivel);
+}
+
+// Mostra na tela o que o leitor está vendo em cada momento.
+function mostrarPrevia(previa) {
+    cartaoVisivel = previa.encontrado;
+    previaCartao.hidden = !previa.encontrado;
+
+    if (previa.encontrado) {
+        previaCartao.src = previa.imagem;
+        statusPrevia.className = "fw-semibold mt-2 mb-0 text-success";
+        statusPrevia.textContent =
+            `Cartão encontrado. Marcadas: ${previa.marcadas} | ` +
+            `Em branco: ${previa.em_branco} | Anuladas: ${previa.anuladas} | ` +
+            `Dúvida: ${previa.duvidas}`;
+    } else {
+        statusPrevia.className = "fw-semibold mt-2 mb-0 text-danger";
+        statusPrevia.textContent = "Procurando o cartão... mostre os quatro quadrados pretos.";
+    }
+
+    atualizarBotaoLer();
+}
+
+// Envia um quadro por vez: o próximo só sai depois da resposta do anterior.
+async function acompanharCartao() {
+    if (previaRodando) {
+        return;
+    }
+
+    previaRodando = true;
+
+    while (streamCamera && precisaCamera()) {
+        if (videoCamera.videoWidth && !lendoCartao) {
+            try {
+                const dados = new FormData();
+                dados.append("arquivo", await capturarFoto(), "quadro.jpg");
+                mostrarPrevia(await requisitar("/leituras/previa", { method: "POST", body: dados }));
+            } catch (erro) {
+                mostrarPrevia({ encontrado: false });
+            }
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    previaRodando = false;
+    cartaoVisivel = false;
 }
 
 // Transforma a imagem atual da câmera em um arquivo JPG.
@@ -487,7 +547,8 @@ async function lerCartao() {
         return;
     }
 
-    botaoLer.disabled = true;
+    lendoCartao = true;
+    atualizarBotaoLer();
     exibirMensagem("Lendo o cartão...", "secondary");
 
     try {
@@ -506,7 +567,8 @@ async function lerCartao() {
     } catch (erro) {
         exibirMensagem(`Não foi possível ler o cartão: ${erro.message}`);
     } finally {
-        botaoLer.disabled = false;
+        lendoCartao = false;
+        atualizarBotaoLer();
     }
 }
 

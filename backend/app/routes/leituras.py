@@ -1,6 +1,9 @@
+import base64
 from pathlib import Path
 from uuid import uuid4
 
+import cv2
+import numpy as np
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +11,7 @@ from app.database.connection import get_db
 from app.models.aluno import Aluno
 from app.models.processing_job import ProcessingJob
 from app.models.prova import Prova
+from app.worker.vision.omr_engine import draw_readings, read_bubbles, rectify_page
 
 router = APIRouter(prefix="/leituras", tags=["Leitura do cartão"])
 
@@ -53,6 +57,39 @@ def criar_leitura(
     db.refresh(job)
 
     return {"id": job.id, "status": job.status}
+
+
+# Prévia ao vivo: lê um quadro da câmera na hora, sem salvar nada e sem usar a fila.
+@router.post("/previa")
+def previa_leitura(arquivo: UploadFile = File(...)):
+    conteudo = arquivo.file.read(TAMANHO_MAXIMO + 1)
+    if len(conteudo) > TAMANHO_MAXIMO:
+        raise HTTPException(status_code=400, detail="A foto deve ter até 10 MB.")
+
+    foto = cv2.imdecode(np.frombuffer(conteudo, np.uint8), cv2.IMREAD_COLOR)
+    if foto is None:
+        raise HTTPException(status_code=400, detail="Envie uma foto JPG ou PNG.")
+
+    try:
+        pagina = rectify_page(foto)
+    except ValueError as erro:
+        return {"encontrado": False, "erro": str(erro)}
+
+    leituras = read_bubbles(pagina)
+    desenho = cv2.resize(draw_readings(pagina, leituras), (842, 596), interpolation=cv2.INTER_AREA)
+    _, jpg = cv2.imencode(".jpg", desenho, [cv2.IMWRITE_JPEG_QUALITY, 75])
+
+    def contar(situacao):
+        return sum(item["status"] == situacao for item in leituras)
+
+    return {
+        "encontrado": True,
+        "imagem": "data:image/jpeg;base64," + base64.b64encode(jpg).decode(),
+        "marcadas": contar("ANSWERED"),
+        "em_branco": contar("BLANK"),
+        "anuladas": contar("MULTIPLE"),
+        "duvidas": contar("UNCERTAIN"),
+    }
 
 
 # A tela consulta esta rota até a leitura terminar.

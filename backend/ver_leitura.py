@@ -18,11 +18,9 @@ import cv2
 import numpy as np
 
 from app.worker.vision.omr_engine import (
-    OPTIONS,
     PAGE_H,
     PAGE_W,
-    SAMPLE_RADIUS,
-    bubble_center,
+    draw_readings,
     find_markers,
     read_bubbles,
     rectify_page,
@@ -43,28 +41,6 @@ BRANCO = (255, 255, 255)
 
 def escrever(imagem, texto, x, y, cor=BRANCO, tamanho=0.6):
     cv2.putText(imagem, texto, (x, y), cv2.FONT_HERSHEY_SIMPLEX, tamanho, cor, 1, cv2.LINE_AA)
-
-
-def desenhar_bolhas(cartao, leituras):
-    """Desenha no cartão a área medida em cada bolha e o percentual pintado."""
-    for item in leituras:
-        for indice, letra in enumerate(OPTIONS):
-            preenchimento = item["fill_ratios"][letra]
-
-            if item["answer"] == letra:
-                cor, espessura = VERDE, 3
-            elif item["status"] == "MULTIPLE" and preenchimento >= 0.30:
-                cor, espessura = VERMELHO, 3
-            elif item["status"] == "UNCERTAIN" and preenchimento >= 0.15:
-                cor, espessura = LARANJA, 3
-            else:
-                cor, espessura = CINZA, 1
-
-            x, y = bubble_center(item["question"], indice)
-            cv2.circle(cartao, (x, y), SAMPLE_RADIUS, cor, espessura)
-
-            if preenchimento >= 0.15:
-                escrever(cartao, f"{preenchimento:.0%}", x - 20, y - 20, VERMELHO, 0.55)
 
 
 def desenhar_camera(frame, cantos):
@@ -111,7 +87,7 @@ def montar_painel(frame, fps=0.0, cartao_anterior=None):
         cantos = find_markers(frame)
         cartao = rectify_page(frame)
         leituras = read_bubbles(cartao)
-        desenhar_bolhas(cartao, leituras)
+        cartao = draw_readings(cartao, leituras)
     except ValueError as excecao:
         erro = str(excecao)
         cartao = cartao_anterior
