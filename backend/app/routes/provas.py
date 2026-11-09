@@ -4,37 +4,65 @@ from app.database.connection import get_db
 from app.models.prova import Prova
 from app.models.professor import Professor
 from app.schemas.prova import ProvaCreate
+from app.core.dependencies import obter_professor_logado
 
 router = APIRouter()
 
 @router.get("/provas")
-def listar_provas(db: Session = Depends(get_db)):
-    provas = db.query(Prova).all()
+def listar_provas(
+    db: Session = Depends(get_db),
+    professor: Professor = Depends(obter_professor_logado)
+):
+    provas = db.query(Prova).filter(
+        Prova.professor_id == professor.id_cadastro
+    ).all()
     return provas
-
+    
 @router.post("/provas")
-def criar_prova(prova: ProvaCreate, db: Session = Depends(get_db)):
-    nova_prova = Prova(**prova.model_dump())
+def criar_prova(
+    prova: ProvaCreate,
+    db: Session = Depends(get_db),
+    professor: Professor = Depends(obter_professor_logado)
+):
+    nova_prova = Prova(
+        **prova.model_dump(),
+        professor_id=professor.id_cadastro
+    )
+
     db.add(nova_prova)
     db.commit()
     db.refresh(nova_prova)
+
     return nova_prova
 
 @router.put("/provas/{id_prova}")
-def atualizar_prova(id_prova: int, prova: ProvaCreate, db: Session = Depends(get_db)):
-    prova_existente = db.query(Prova).filter(Prova.id_prova == id_prova).first()
+def atualizar_prova(
+    id_prova: int,
+    prova: ProvaCreate,
+    db: Session = Depends(get_db),
+    professor: Professor = Depends(obter_professor_logado)
+):
+    prova_existente = db.query(Prova).filter(
+        Prova.id_prova == id_prova,
+        Prova.professor_id == professor.id_cadastro
+    ).first()
+
     if not prova_existente:
-        raise HTTPException(status_code=404, detail="Prova não encontrada")
+        raise HTTPException(
+            status_code=404,
+            detail="Prova não encontrada"
+        )
 
     for key, value in prova.model_dump(exclude_unset=True).items():
         setattr(prova_existente, key, value)
 
     db.commit()
     db.refresh(prova_existente)
+
     return prova_existente
 
 @router.delete("/provas/{id_prova}")
-def deletar_prova(id_prova: int, db: Session = Depends(get_db)):
+def deletar_prova(id_prova: int, db: Session = Depends(get_db), professor: Professor = Depends(obter_professor_logado)):
     prova_existente = db.query(Prova).filter(Prova.id_prova == id_prova).first()
     if not prova_existente:
         raise HTTPException(status_code=404, detail="Prova não encontrada")
