@@ -1,0 +1,53 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-gabaritai}
+      MYSQL_USER: ${DB_USER:-gabaritai}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-gabaritai_dev}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-gabaritai_root_dev}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./gabaritai.sql:/docker-entrypoint-initdb.d/01-gabaritai.sql:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+    image: gabaritai-api:latest
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-gabaritai}
+      DB_USER: ${DB_USER:-gabaritai}
+      DB_PASSWORD: ${DB_PASSWORD:-gabaritai_dev}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-gabaritai_chave_somente_para_desenvolvimento}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:5500:80"
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
