@@ -140,7 +140,19 @@ def find_printed_bubbles(page: np.ndarray) -> np.ndarray:
     binary = cv2.adaptiveThreshold(
         gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 151, 15
     )
-    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Olha só a área das questões: uma borda escura em volta da página
+    # viraria um contorno único e esconderia todos os círculos.
+    # A folga passa da tolerância para não cortar círculos ao meio.
+    margin = GRID_TOLERANCE + 40
+    left = int(COLUMN_FIRST_X[0] - margin)
+    right = int(COLUMN_FIRST_X[-1] + 4 * OPTION_STEP_X + margin)
+    top = int(FIRST_ROW_Y - margin)
+    bottom = int(FIRST_ROW_Y + (QUESTIONS_PER_COLUMN - 1) * ROW_STEP_Y + margin)
+    area_of_interest = np.zeros_like(binary)
+    area_of_interest[top:bottom, left:right] = binary[top:bottom, left:right]
+    contours, _ = cv2.findContours(
+        area_of_interest, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
 
     centers = []
     for contour in contours:
