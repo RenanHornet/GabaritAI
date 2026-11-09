@@ -72,6 +72,13 @@ Para encerrar os serviços, execute `docker compose down`; os dados persistem no
 volume. Para também removê-los e recriar o banco do zero, execute
 `docker compose down -v` (isso apaga os dados armazenados).
 
+### Correção automática por foto
+
+O serviço `worker` lê as fotos dos cartões. Na tela **Respostas e correção**,
+escolha **Automático**, envie a foto e confira as questões destacadas em
+amarelo antes de registrar. Em caso de leitura errada, veja os logs com
+`docker compose logs worker`.
+
 ## 📌 Status
 
 **Versão atual:** MVP 0.1

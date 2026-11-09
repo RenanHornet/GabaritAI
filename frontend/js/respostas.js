@@ -7,10 +7,16 @@ const alunoSelect = document.getElementById("alunoSelect");
 const listaQuestoes = document.getElementById("listaQuestoes");
 const formRespostas = document.getElementById("formRespostas");
 const mensagem = document.getElementById("mensagem");
+const areaFoto = document.getElementById("areaFoto");
+const areaRespostas = document.getElementById("areaRespostas");
+const fotoCartao = document.getElementById("fotoCartao");
+const botaoLer = document.getElementById("botaoLer");
 
-const alternativas = ["A", "B", "C", "D", "E"];
+const EM_BRANCO = "BRANCO";
+const alternativas = ["A", "B", "C", "D", "E", EM_BRANCO];
 
 let questoesAtuais = [];
+let leituraPronta = false;
 
 // Exibe mensagens para o usuário.
 function exibirMensagem(texto, tipo = "danger") {
@@ -50,7 +56,7 @@ async function carregarDadosIniciais() {
         });
         exibirMensagem("Provas carregadas. Selecione a turma e o aluno.", "success");
     } catch (erro){
-        exibirMensagem(`Não foi possível carregar as provas: $(erro.message)`
+        exibirMensagem(`Não foi possível carregar as provas: ${erro.message}`
 
         );
     }
@@ -125,6 +131,8 @@ async function carregarAlunosPorTurma() {
 async function carregarQuestoes() {
     listaQuestoes.replaceChildren();
     questoesAtuais = [];
+    leituraPronta = false;
+    atualizarModo();
 
     if (!provaSelect.value) {
         return;
@@ -167,6 +175,7 @@ function renderizarQuestoes() {
     questoesAtuais.forEach((questao) => {
         const linha = document.createElement("div");
         linha.className = "border-bottom py-3";
+        linha.id = `linha-${questao.id_questao}`;
 
         const titulo = document.createElement("p");
         titulo.className = "fw-semibold mb-2";
@@ -192,7 +201,7 @@ function renderizarQuestoes() {
             const label = document.createElement("label");
             label.className = "form-check-label";
             label.htmlFor = id;
-            label.textContent = alternativa;
+            label.textContent = alternativa === EM_BRANCO ? "Em branco" : alternativa;
 
             wrapper.append(input, label);
             grupo.appendChild(wrapper);
@@ -277,6 +286,11 @@ formRespostas.addEventListener("submit", async (event) => {
                 );
             }
 
+            // Questão em branco não gera resposta no banco.
+            if (selecionada.value === EM_BRANCO) {
+                continue;
+            }
+
             await requisitar("/respostas", {
                 method: "POST",
                 headers: {
@@ -308,6 +322,7 @@ formRespostas.addEventListener("submit", async (event) => {
             `Prova corrigida com sucesso! ` +
             `Acertos: ${resultado.acertos} | ` +
             `Erros: ${resultado.erros} | ` +
+            `Em branco: ${resultado.em_branco} | ` +
             `Total de questões: ${resultado.total_questoes}.`,
             "success"
         );
@@ -323,10 +338,131 @@ formRespostas.addEventListener("submit", async (event) => {
 });
 
 
+// No modo automático, as questões só aparecem depois da leitura da foto.
+function atualizarModo() {
+    const automatico = document.getElementById("modoAutomatico").checked;
+    areaFoto.hidden = !automatico;
+    areaRespostas.hidden = automatico && !leituraPronta;
+}
+
+// Consulta a API até o worker terminar de ler a foto.
+async function aguardarLeitura(id) {
+    for (let tentativa = 0; tentativa < 40; tentativa++) {
+        const leitura = await requisitar(`/leituras/${id}`);
+
+        if (leitura.status === "COMPLETED") {
+            return leitura;
+        }
+
+        if (leitura.status === "FAILED") {
+            throw new Error(leitura.erro);
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+
+    throw new Error("A leitura demorou demais. Verifique se o worker está rodando.");
+}
+
+// Marca na tela o que o worker leu e destaca o que precisa de revisão.
+function aplicarLeitura(respostas) {
+    renderizarQuestoes();
+    let paraRevisar = 0;
+
+    questoesAtuais.forEach((questao) => {
+        const lida = respostas.find((r) => r.questao === questao.numero_questao);
+        let valor = null;
+
+        if (lida?.status === "ANSWERED") {
+            valor = lida.alternativa;
+        } else if (lida?.status === "BLANK") {
+            valor = EM_BRANCO;
+        }
+
+        if (valor) {
+            document.getElementById(`questao-${questao.id_questao}-${valor}`).checked = true;
+        } else {
+            document.getElementById(`linha-${questao.id_questao}`).classList.add("bg-warning-subtle");
+            paraRevisar++;
+        }
+    });
+
+    leituraPronta = true;
+    atualizarModo();
+    exibirMensagem(
+        `Leitura concluída. Questões para revisar: ${paraRevisar}. Confira e registre.`,
+        "success"
+    );
+}
+
+// Envia a foto para a API e preenche o formulário com o resultado.
+async function lerCartao() {
+    const foto = fotoCartao.files[0];
+
+    if (!provaSelect.value || !alunoSelect.value || !foto) {
+        exibirMensagem("Selecione a prova, o aluno e a foto do cartão.");
+        return;
+    }
+
+    if (questoesAtuais.length === 0) {
+        exibirMensagem("A prova selecionada não possui questões carregadas.");
+        return;
+    }
+
+    botaoLer.disabled = true;
+    exibirMensagem("Lendo o cartão...", "secondary");
+
+    try {
+        const dados = new FormData();
+        dados.append("prova_id", provaSelect.value);
+        dados.append("aluno_id", alunoSelect.value);
+        dados.append("arquivo", foto);
+
+        const { id } = await requisitar("/leituras", {
+            method: "POST",
+            body: dados
+        });
+
+        const leitura = await aguardarLeitura(id);
+        aplicarLeitura(leitura.respostas);
+    } catch (erro) {
+        exibirMensagem(`Não foi possível ler o cartão: ${erro.message}`);
+    } finally {
+        botaoLer.disabled = false;
+    }
+}
+
+// Evita registrar a leitura de um aluno no cadastro de outro.
+function descartarLeitura() {
+    if (leituraPronta) {
+        leituraPronta = false;
+        renderizarQuestoes();
+        atualizarModo();
+    }
+}
+
 // Atualiza as questões quando a prova muda.
 provaSelect.addEventListener("change", carregarQuestoes);
 
 turmaSelect.addEventListener("change", carregarAlunosPorTurma);
+
+alunoSelect.addEventListener("change", descartarLeitura);
+
+document.querySelectorAll('input[name="modo"]').forEach((opcao) => {
+    opcao.addEventListener("change", atualizarModo);
+});
+
+botaoLer.addEventListener("click", lerCartao);
+
+// O "reset" limpa os campos depois deste evento; por isso o setTimeout.
+formRespostas.addEventListener("reset", () => {
+    setTimeout(() => {
+        listaQuestoes.replaceChildren();
+        questoesAtuais = [];
+        leituraPronta = false;
+        atualizarModo();
+    });
+});
 
 carregarDadosIniciais();
 carregarTurmas();
