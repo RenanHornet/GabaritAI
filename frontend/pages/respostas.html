@@ -148,6 +148,51 @@
                             </div>
                         </div>
 
+                        <!-- Forma de preenchimento -->
+                        <div class="mb-4">
+                            <span class="form-label fw-bold d-block">
+                                Como preencher?
+                            </span>
+
+                            <div class="btn-group" role="group" aria-label="Forma de preenchimento">
+                                <input type="radio" class="btn-check" name="modo" id="modoManual" value="manual" checked>
+                                <label class="btn btn-outline-primary" for="modoManual">Manual</label>
+
+                                <input type="radio" class="btn-check" name="modo" id="modoWebcam" value="webcam">
+                                <label class="btn btn-outline-primary" for="modoWebcam">Webcam</label>
+                            </div>
+                        </div>
+
+                        <!-- Câmera (somente no modo webcam) -->
+                        <div id="areaCamera" class="mb-4" hidden>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <video
+                                        id="videoCamera"
+                                        class="w-100 rounded border d-block"
+                                        autoplay
+                                        playsinline
+                                        muted
+                                    ></video>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <img id="previaCartao" class="w-100 rounded border d-block" alt="Prévia do que o leitor está vendo" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-text">
+                                Mostre o cartão inteiro, com os quatro quadrados pretos visíveis.
+                            </div>
+
+                            <p id="statusPrevia" class="fw-semibold mt-2 mb-0" role="status"></p>
+
+                            <button id="botaoLer" type="button" class="btn button-primary fw-bold mt-2">
+                                Capturar e ler
+                            </button>
+                        </div>
+
+                        <div id="areaRespostas">
                         <!-- Alternativas -->
                         <section class="card shadow-sm mb-4">
                             <div class="card-body">
@@ -156,7 +201,7 @@
                                 </h2>
 
                                 <p class="text-muted">
-                                    Selecione uma alternativa para cada questão.
+                                    Marque uma opção em cada questão. Mais de uma alternativa marcada no cartão: use "Anulada" (conta como erro). Confira as questões em amarelo.
                                 </p>
 
                                 <div id="listaQuestoes"></div>
@@ -178,6 +223,7 @@
                             >
                                 Limpar formulário
                             </button>
+                        </div>
                         </div>
 
                         <p

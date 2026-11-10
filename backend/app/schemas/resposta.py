@@ -5,9 +5,9 @@ class RespostaResponse(BaseModel):
     id_resposta: int
     prova_aluno_id: int
     questao_id: int
-    alternativa_marcada: Literal["A", "B", "C", "D", "E"]
+    alternativa_marcada: Literal["A", "B", "C", "D", "E", "X"]
     
 class RespostaCreate(BaseModel):
     prova_aluno_id: int
     questao_id: int
-    alternativa_marcada: Literal["A", "B", "C", "D", "E"]
+    alternativa_marcada: Literal["A", "B", "C", "D", "E", "X"]
