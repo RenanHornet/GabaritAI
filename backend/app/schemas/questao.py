@@ -12,4 +12,3 @@ class QuestaoCreate(BaseModel):
     numero_questao: int = Field(gt=0)
     alternativa_correta: Literal["A", "B", "C", "D", "E"]
     prova_id: int
-    professor_id: int
