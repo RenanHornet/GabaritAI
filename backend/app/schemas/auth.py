@@ -11,3 +11,8 @@ class LoginResponse(BaseModel):
     token_type: str
     professor_id: int
     nome: str
+    
+class ProfessorCreate(BaseModel):
+    email: EmailStr
+    senha: str
+    nome: str

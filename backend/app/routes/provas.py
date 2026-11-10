@@ -63,7 +63,11 @@ def atualizar_prova(
 
 @router.delete("/provas/{id_prova}")
 def deletar_prova(id_prova: int, db: Session = Depends(get_db), professor: Professor = Depends(obter_professor_logado)):
-    prova_existente = db.query(Prova).filter(Prova.id_prova == id_prova).first()
+    prova_existente = db.query(Prova).filter(
+        Prova.id_prova == id_prova,
+        Prova.professor_id == professor.id_cadastro
+    ).first()
+    
     if not prova_existente:
         raise HTTPException(status_code=404, detail="Prova não encontrada")
 
