@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.models.prova import Prova
+from app.models.professor import Professor
+from app.core.dependencies import obter_professor_logado
 from app.services.ranking_service import gerar_ranking
 
 router = APIRouter()
@@ -12,7 +14,8 @@ router = APIRouter()
 def consultar_ranking(
     prova_id: int,
     turma: int | None = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    professor: Professor = Depends(obter_professor_logado)
 ):
     #Verifica se a prova existe.
     prova = (
