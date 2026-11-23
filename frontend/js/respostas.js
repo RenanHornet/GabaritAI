@@ -36,7 +36,19 @@ function exibirMensagem(texto, tipo = "danger") {
 
 // Faz requisições à API e trata erros HTTP.
 async function requisitar(url, opcoes = {}) {
-    const resposta = await fetch(`${API_URL}${url}`, opcoes);
+
+    const token = sessionStorage.getItem("token");
+
+    const headers = new Headers(opcoes.headers || {});
+
+    if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    const resposta = await fetch(`${API_URL}${url}`, {
+        ...opcoes,
+        headers: headers
+    });
 
     const dados = await resposta.json().catch(() => null);
 
