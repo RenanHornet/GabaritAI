@@ -138,6 +138,8 @@ async function carregarAlunosPorTurma(turma) {
 }
 
 // DELETE: excluir aluno
+
+// DELETE: excluir aluno
 async function deletarAluno(id_aluno) {
     if (!confirm(`Deseja realmente excluir o aluno ID ${id_aluno}?`)) {
         return;
@@ -149,11 +151,13 @@ async function deletarAluno(id_aluno) {
             headers: obterHeaders()
         });
 
+        const dados = await response.json();
+
         if (!response.ok) {
-            throw new Error(`Erro ao excluir aluno: HTTP ${response.status}`);
+            throw new Error(dados.detail || `Erro HTTP ${response.status}`);
         }
 
-        alert("Aluno excluído com sucesso!");
+        alert(dados.mensagem || "Aluno excluído com sucesso!");
         carregarAlunos();
 
     } catch (error) {
@@ -161,6 +165,7 @@ async function deletarAluno(id_aluno) {
         alert(error.message);
     }
 }
+
 
 // Botão pesquisar
 document.getElementById("btnPesquisar").addEventListener("click", () => {

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.models.aluno import Aluno
 from app.models.professor import Professor
+from app.models.prova_aluno import ProvaAluno
 from app.schemas.aluno import AlunoCreate, AlunoResponse
 from app.core.dependencies import obter_professor_logado
 
@@ -59,6 +60,7 @@ def atualizar_aluno(
     db.refresh(aluno_existente)
     return aluno_existente
 
+
 @router.delete("/alunos/{id_aluno}")
 def deletar_aluno(
     id_aluno: int,
@@ -73,6 +75,17 @@ def deletar_aluno(
         raise HTTPException(
             status_code=404,
             detail="Aluno não encontrado"
+        )
+
+    # Verifica se existem provas vinculadas ao aluno
+    participacao = db.query(ProvaAluno).filter(
+        ProvaAluno.aluno_id == id_aluno
+    ).first()
+
+    if participacao:
+        raise HTTPException(
+            status_code=409,
+            detail="Este aluno possui provas vinculadas e não pode ser excluído."
         )
 
     db.delete(aluno_existente)

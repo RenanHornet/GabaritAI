@@ -2,6 +2,20 @@
 const API_URL = 'http://127.0.0.1:8000';
 const PROFESSOR_ID = 1;
 
+// Adiciona o token JWT às requisições protegidas
+function obterHeaders(headersAdicionais = {}) {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+        throw new Error("Token não encontrado. Faça login novamente.");
+    }
+
+    return {
+        ...headersAdicionais,
+        Authorization: `Bearer ${token}`
+    };
+}
+
 // Guarda a prova selecionada para cadastrar suas questões.
 let provaSelecionada = null;
 
@@ -42,7 +56,9 @@ async function obterMensagemErro(response) {
 // Carrega e exibe as provas cadastradas.
 async function carregarProvas() {
     try {
-        const response = await fetch(`${API_URL}/provas`);
+        const response = await fetch(`${API_URL}/provas`, {
+            headers: obterHeaders()
+        });
 
         if (!response.ok) {
             throw new Error(await obterMensagemErro(response));
@@ -133,15 +149,14 @@ formularioProva.addEventListener('submit', async (event) => {
         titulo,
         descricao: descricao || null,
         data_aplicacao: data || null,
-        professor_id: PROFESSOR_ID
     };
 
     try {
         const response = await fetch(`${API_URL}/provas`, {
             method: 'POST',
-            headers: {
+            headers: obterHeaders({
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify(novaProva)
         });
 
@@ -194,7 +209,10 @@ async function carregarQuestoes() {
 
     try {
         const response = await fetch(
-            `${API_URL}/provas/${provaSelecionada.id_prova}/questoes`
+            `${API_URL}/provas/${provaSelecionada.id_prova}/questoes`,
+            {
+                headers: obterHeaders()
+            }
         );
 
         if (!response.ok) {
@@ -297,9 +315,9 @@ formularioQuestao.addEventListener('submit', async (event) => {
     try {
         const response = await fetch(`${API_URL}/questoes`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+           headers: obterHeaders({
+            'Content-Type': 'application/json'
+        }),
             body: JSON.stringify(novaQuestao)
         });
 
@@ -330,7 +348,8 @@ async function excluirProva(idProva) {
 
     try {
         const response = await fetch(`${API_URL}/provas/${idProva}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: obterHeaders()
         });
 
         if (!response.ok) {
@@ -363,7 +382,8 @@ async function excluirQuestao(idQuestao) {
 
     try {
         const response = await fetch(`${API_URL}/questoes/${idQuestao}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: obterHeaders()
         });
 
         if (!response.ok) {

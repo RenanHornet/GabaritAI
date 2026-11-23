@@ -13,3 +13,4 @@ JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(
 
 if not JWT_SECRET_KEY:
     raise ValueError("JWT_SECRET_KEY não foi configurada no .env")
+
