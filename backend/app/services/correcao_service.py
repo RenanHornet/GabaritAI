@@ -33,12 +33,6 @@ def corrigir_prova(
         .all()
     )
     
-    if len(respostas) != len(questoes):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Não é possível corrigir: existem questões sem resposta."
-        )
-
     ids_questoes = {
         questao.id_questao
         for questao in questoes
@@ -56,18 +50,27 @@ def corrigir_prova(
 
     acertos = 0
     erros = 0
+    em_branco = 0
+    anuladas = 0
+
+    respostas_por_questao = {
+        resposta.questao_id: resposta
+        for resposta in respostas
+    }
 
     for questao in questoes:
-        resposta_aluno = next(
-            resposta
-            for resposta in respostas
-            if resposta.questao_id == questao.id_questao
-        )
+        resposta_aluno = respostas_por_questao.get(questao.id_questao)
 
-        if resposta_aluno.alternativa_marcada == questao.alternativa_correta:
+        # Questão sem resposta registrada conta como em branco.
+        if resposta_aluno is None:
+            em_branco += 1
+        elif resposta_aluno.alternativa_marcada == questao.alternativa_correta:
             acertos += 1
         else:
+            # "X" = mais de uma alternativa marcada: anulada, conta como erro.
             erros += 1
+            if resposta_aluno.alternativa_marcada == "X":
+                anuladas += 1
     
     #Marca a participação como corrigida.
     participacao.corrigida = True
@@ -77,5 +80,7 @@ def corrigir_prova(
         "prova_aluno_id": prova_aluno_id,
         "total_questoes": len(questoes),
         "acertos": acertos,
-        "erros": erros
+        "erros": erros,
+        "em_branco": em_branco,
+        "anuladas": anuladas
     }

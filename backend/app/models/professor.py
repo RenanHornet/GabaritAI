@@ -11,4 +11,4 @@ class Professor(Base):
     )
     nome = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
-    senha = Column(String(100), nullable=False)
+    senha = Column(String(255), nullable=False)

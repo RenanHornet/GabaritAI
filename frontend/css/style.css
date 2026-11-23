@@ -1,3 +1,12 @@
+
+/* Identidade visual do GabaritAI */
+:root {
+    --cor-principal: #142B4A;
+    --cor-destaque: #2F6FED;
+    --cor-fundo: #F3F6FA;
+    --cor-branco: #FFFFFF;
+}
+
 /*Estilos gerais*/
 body {
     height: 100vh;
@@ -6,3 +15,196 @@ body {
 button {
     cursor: pointer;
 }
+
+/* CSS do menu lateral*/
+.menu-lateral {
+    width: 250px;
+    min-height: calc(100vh - 56px);
+    flex-shrink: 0;
+    background-color: var(--cor-principal);
+}
+
+/* Links do menu lateral */
+.menu-lateral .nav-link {
+    color: var(--cor-branco);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Página atual no menu */
+.menu-lateral .nav-link.active {
+    background-color: var(--cor-destaque);
+    color: var(--cor-branco);
+    border-radius: 6px;
+}
+
+/* Título do menu lateral */
+.menu-lateral .menu-titulo {
+    color: var(--cor-branco);
+    opacity: 0.7;
+}
+
+
+/* Efeito ao passar o mouse sobre os links */
+.menu-lateral .nav-link:hover {
+    background-color: var(--cor-destaque);
+    color: var(--cor-branco);
+    border-radius: 6px;
+}
+
+/*Frases*/
+.frase-gabaritai {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--cor-principal);
+    margin-top: 2rem;
+}
+
+.frase-dashboard {
+    color: var(--cor-principal);
+}
+
+/*card do dashboard*/
+.titulo-card{
+    color: var(--cor-principal);
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.card-atalho{
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.card-atalho:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    color: var(--cor-branco);
+    background-color: var(--cor-principal);
+}
+
+.card-atalho:hover h2, .card-atalho:hover p {
+    color: var(--cor-branco);
+}
+
+/*container do cadastro de alunos*/
+.sub-card-aluno {
+    font-size:1.0em;
+    color: var(--cor-principal);
+    font-weight: bold;
+}
+
+/*botões*/
+.button-primary{
+    color: var(--cor-branco);
+    background-color: var(--cor-principal);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.button-primary:hover{
+    background-color: var(--cor-destaque);
+    color: var(--cor-branco);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+
+.button-destaque{
+    color: var(--cor-branco);
+    background-color: var(--cor-destaque);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.button-destaque:hover{
+    color: var(--cor-branco);
+    background-color: var(--cor-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Cabeçalho da tabela */
+.cabecalho-tabela {
+    background-color: var(--cor-principal);
+    color: var(--cor-branco);
+}
+
+.cabecalho-tabela th {
+    background-color: var(--cor-principal);
+    color: var(--cor-branco);
+    font-weight: bold;
+}
+
+
+/* Tabela de alunos */
+.table {
+    margin-bottom: 0;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+
+/* Identificação da turma na tabela */
+.badge-turma {
+    background-color: var(--cor-destaque);
+    color: var(--cor-branco);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+}
+
+/* Botão de exclusão */
+.btn-danger {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+/*Menu lateral responsivo */
+@media (max-width: 767.98px) {
+    .menu-lateral {
+        position: absolute;
+        top: 56px;
+        left: 0;
+        z-index: 1050;
+        width: 250px;
+        height: calc(100vh - 56px);
+        min-height: 0;
+        overflow-y: auto;
+        box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+    }
+}
+
+
+/* Epic 5.1 — Conteúdo principal responsivo */
+@media (max-width: 767.98px) {
+    main.flex-grow-1 {
+        min-width: 0;
+        width: 100%;
+        padding: 1rem !important;
+    }
+
+    main.flex-grow-1 .card,
+    main.flex-grow-1 .card-body {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    main.flex-grow-1 .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    main.flex-grow-1 .table-responsive table {
+        white-space: nowrap;
+    }
+}
+

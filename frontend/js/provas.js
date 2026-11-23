@@ -85,7 +85,7 @@ async function carregarProvas() {
 
             const botaoQuestoes = document.createElement('button');
             botaoQuestoes.type = 'button';
-            botaoQuestoes.className = 'btn btn-sm btn-primary me-1';
+            botaoQuestoes.className = 'btn btn-sm button-primary me-1';
             botaoQuestoes.textContent = 'Questões';
             botaoQuestoes.addEventListener('click', () => {
                 abrirPainelQuestoes(prova);
